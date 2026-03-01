@@ -7,8 +7,8 @@ import {
 import { toast } from 'sonner@2.0.3';
 
 const TYPES = {
-  job_assigned: { icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', label: 'Job Assigned' },
-  job_completed: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', label: 'Job Completed' },
+  task_assigned: { icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', label: 'Task Assigned' },
+  task_completed: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', label: 'Task Completed' },
   urgent: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', label: 'Urgent' },
   message: { icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200', label: 'From Admin' },
   id_request: { icon: IdCard, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200', label: 'ID Request' },
@@ -16,13 +16,13 @@ const TYPES = {
 };
 
 const initialNotifications = [
-  { id: 1, type: 'message', source: 'admin', title: 'New job assigned: Fix leaking pipe – Unit A-101', body: 'Obsan Habtamu has assigned you a new job. Resident Samson Tadesse reported a burst pipe. Please coordinate with your team and assign to the appropriate employee.', time: '20 min ago', read: false, date: '2026-02-27' },
+  { id: 1, type: 'message', source: 'admin', title: 'New issue assigned: Sewage overflow – Block A', body: 'Obsan Habtamu has assigned you a new community issue. Residents near Block A entrance reported a sewage overflow. Please coordinate with your team and assign to the appropriate employee.', time: '20 min ago', read: false, date: '2026-02-27' },
   { id: 2, type: 'id_request', source: 'admin', title: 'Digital ID request approved — Samson Tadesse', body: 'Admin has approved the Digital ID request for Samson Tadesse (Unit A-101). Please assign an employee to issue the ID and set a due date.', time: '1 hour ago', read: false, date: '2026-02-27' },
-  { id: 3, type: 'urgent', source: 'admin', title: 'Urgent: 5 requests pending over 48 hours', body: 'There are 5 maintenance requests that have been in "pending" status for over 48 hours. Please review and take action immediately.', time: '3 hours ago', read: false, date: '2026-02-27' },
-  { id: 4, type: 'job_completed', source: 'employee', title: 'Samuel Fayisa completed: Fix door lock – Unit C-201', body: 'Employee Samuel Fayisa has marked the job "Fix door lock – Unit C-201" as completed. Please verify and update the status.', time: 'Yesterday, 5:00 PM', read: true, date: '2026-02-26' },
-  { id: 5, type: 'job_assigned', source: 'admin', title: 'Install new outlets – Unit A-204 assigned to you', body: 'Obsan Habtamu assigned job #J-2041 to you (Installation of electrical outlets – Unit A-204). Please assign to an available electrician.', time: 'Yesterday, 2:00 PM', read: true, date: '2026-02-26' },
-  { id: 6, type: 'job_completed', source: 'employee', title: 'Biruk Woldemariam completed: AC maintenance – Unit C-312', body: 'Employee Biruk Woldemariam completed "AC maintenance – Unit C-312". The resident has confirmed the AC is now working properly.', time: '2 days ago', read: true, date: '2026-02-25' },
-  { id: 7, type: 'message', source: 'admin', title: 'Monthly performance review reminder', body: 'Admin: Monthly performance reviews are due this Friday. Please ensure all job statuses are updated and submit your team report by EOD Thursday.', time: '2 days ago', read: true, date: '2026-02-25' },
+  { id: 3, type: 'urgent', source: 'admin', title: 'Urgent: 5 issues pending over 48 hours', body: 'There are 5 community issue reports that have been in "pending" status for over 48 hours. Please review and take action immediately.', time: '3 hours ago', read: false, date: '2026-02-27' },
+  { id: 4, type: 'task_completed', source: 'employee', title: 'Samuel Fayisa completed: Fix drainage – Block C', body: 'Employee Samuel Fayisa has marked the task "Fix drainage issue – Block C entrance" as completed. Please verify and update the status.', time: 'Yesterday, 5:00 PM', read: true, date: '2026-02-26' },
+  { id: 5, type: 'task_assigned', source: 'admin', title: 'Clear sewage blockage – Block A assigned to you', body: 'Obsan Habtamu assigned this community issue to you. Please assign to an available maintenance staff member.', time: 'Yesterday, 2:00 PM', read: true, date: '2026-02-26' },
+  { id: 6, type: 'task_completed', source: 'employee', title: 'Biruk Woldemariam completed: Pothole repair – Block C', body: 'Employee Biruk Woldemariam completed "Fill pothole – Access road near Block C". Verified by resident.', time: '2 days ago', read: true, date: '2026-02-25' },
+  { id: 7, type: 'message', source: 'admin', title: 'Monthly performance review reminder', body: 'Admin: Monthly performance reviews are due this Friday. Please ensure all task statuses are updated and submit your team report by EOD Thursday.', time: '2 days ago', read: true, date: '2026-02-25' },
   { id: 8, type: 'id_request', source: 'admin', title: 'Digital ID request — Mulugeta Haile (C-312)', body: 'A new approved Digital ID request from Admin: Mulugeta Haile (Unit C-312) needs a replacement ID. Please assign employee and set due date.', time: '3 days ago', read: true, date: '2026-02-24' },
   { id: 9, type: 'info', source: 'admin', title: 'Team briefing – Monday 9:00 AM', body: 'There will be a mandatory team briefing on Monday, 2026-03-02 at 9:00 AM in the management office. Your attendance is required.', time: '3 days ago', read: true, date: '2026-02-24' },
 ];
@@ -58,8 +58,8 @@ export default function SpecialEmployeeNotifications() {
     { key: 'unread', label: 'Unread' },
     { key: 'message', label: 'From Admin' },
     { key: 'id_request', label: 'ID Requests' },
-    { key: 'job_assigned', label: 'Jobs' },
-    { key: 'job_completed', label: 'Completed' },
+    { key: 'task_assigned', label: 'Tasks' },
+    { key: 'task_completed', label: 'Completed' },
     { key: 'urgent', label: 'Urgent' },
   ];
 
@@ -164,8 +164,8 @@ export default function SpecialEmployeeNotifications() {
                         </div>
                         {isExpanded && (
                           <div className="px-4 pb-4 flex gap-3 border-t border-gray-100 pt-3">
-                            {notif.type === 'job_assigned' && (
-                              <button onClick={() => toast.success('Navigating to jobs...')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">View Job</button>
+                            {notif.type === 'task_assigned' && (
+                              <button onClick={() => toast.success('Navigating to tasks...')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">View task</button>
                             )}
                             {notif.type === 'id_request' && (
                               <button onClick={() => toast.success('Navigating to Digital ID...')} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Manage ID Request</button>
@@ -173,8 +173,8 @@ export default function SpecialEmployeeNotifications() {
                             {notif.type === 'urgent' && (
                               <button onClick={() => toast.success('Reviewing urgent items...')} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Take Action</button>
                             )}
-                            {notif.type === 'job_completed' && (
-                              <button onClick={() => toast.success('Job verified!')} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Verify & Close</button>
+                            {notif.type === 'task_completed' && (
+                              <button onClick={() => toast.success('task verified!')} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Verify & Close</button>
                             )}
                             <button onClick={() => dismiss(notif.id)} className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50">Dismiss</button>
                           </div>

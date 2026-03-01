@@ -8,7 +8,6 @@ import {
   Users,
   UserCog,
   UserCheck,
-  Briefcase,
   MessageSquare,
   IdCard,
   Bell,
@@ -37,7 +36,6 @@ export default function DashboardLayout({ children }) {
     { labelKey: 'residents', icon: <Users className="w-5 h-5" />, path: '/admin/residents' },
     { labelKey: 'employees', icon: <UserCog className="w-5 h-5" />, path: '/admin/employees' },
     { labelKey: 'specialEmployees', icon: <UserCheck className="w-5 h-5" />, path: '/admin/special-employees' },
-    { labelKey: 'jobManagement', icon: <Briefcase className="w-5 h-5" />, path: '/admin/jobs' },
     { labelKey: 'requestsComplaints', icon: <MessageSquare className="w-5 h-5" />, path: '/admin/requests' },
     { labelKey: 'digitalIdSystem', icon: <IdCard className="w-5 h-5" />, path: '/admin/digital-id' },
     { labelKey: 'notifications', icon: <Bell className="w-5 h-5" />, path: '/admin/notifications' },
@@ -48,7 +46,6 @@ export default function DashboardLayout({ children }) {
     { labelKey: 'dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/special-employee/dashboard', readOnly: true },
     { labelKey: 'residents', icon: <Users className="w-5 h-5" />, path: '/special-employee/residents' },
     { labelKey: 'employees', icon: <UserCog className="w-5 h-5" />, path: '/special-employee/employees', readOnly: true },
-    { labelKey: 'jobManagement', icon: <Briefcase className="w-5 h-5" />, path: '/special-employee/jobs' },
     { labelKey: 'requestsComplaints', icon: <MessageSquare className="w-5 h-5" />, path: '/special-employee/requests' },
     { labelKey: 'digitalIdSystem', icon: <IdCard className="w-5 h-5" />, path: '/special-employee/digital-id' },
     { labelKey: 'notifications', icon: <Bell className="w-5 h-5" />, path: '/special-employee/notifications' },
@@ -56,7 +53,7 @@ export default function DashboardLayout({ children }) {
   ];
 
   const employeeMenuItems = [
-    { labelKey: 'myJobs', icon: <Briefcase className="w-5 h-5" />, path: '/employee/dashboard' },
+    { labelKey: 'myTasks', icon: <ClipboardList className="w-5 h-5" />, path: '/employee/dashboard' },
     { labelKey: 'notifications', icon: <Bell className="w-5 h-5" />, path: '/employee/notifications' },
   ];
 

@@ -41,8 +41,8 @@ export default function Welcome() {
 
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <Briefcase className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="mb-2">{t('jobTracking')}</h3>
-              <p className="text-gray-600">{t('jobTrackingDesc')}</p>
+              <h3 className="mb-2">{t('taskTracking')}</h3>
+              <p className="text-gray-600">{t('taskTrackingDesc')}</p>
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-sm">

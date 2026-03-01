@@ -15,9 +15,9 @@ export default function ResidentDashboard() {
   ];
 
   const myRequests = [
-    { id: 1, type: 'maintenance', subject: 'Leaking pipe in kitchen', status: 'in-progress', date: '2026-02-24' },
-    { id: 2, type: 'maintenance', subject: 'AC not cooling properly', status: 'pending', date: '2026-02-23' },
-    { id: 3, type: 'complaint', subject: 'Noise from upstairs unit', status: 'pending', date: '2026-02-22' },
+    { id: 1, type: 'request', subject: 'No water supply since morning', status: 'in-progress', date: '2026-02-28' },
+    { id: 2, type: 'request', subject: 'Streetlight outage near Block A', status: 'pending', date: '2026-02-27' },
+    { id: 3, type: 'complaint', subject: 'Garbage not collected for 3 days', status: 'pending', date: '2026-02-26' },
   ];
 
   const announcements = [

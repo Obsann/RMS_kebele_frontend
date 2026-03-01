@@ -14,19 +14,19 @@ import {
 import { toast } from 'sonner@2.0.3';
 
 const NOTIFICATION_TYPES = {
-  job_assigned: {
+  task_assigned: {
     icon: Briefcase,
     color: 'text-blue-600',
     bg: 'bg-blue-50',
     border: 'border-blue-200',
-    label: 'Job Assigned',
+    label: 'Task Assigned',
   },
-  job_completed: {
+  task_completed: {
     icon: CheckCircle,
     color: 'text-green-600',
     bg: 'bg-green-50',
     border: 'border-green-200',
-    label: 'Job Completed',
+    label: 'Task Completed',
   },
   urgent: {
     icon: AlertTriangle,
@@ -55,17 +55,17 @@ const initialNotifications = [
   {
     id: 1,
     type: 'urgent',
-    title: 'Urgent: Pipe burst in Unit A-101',
-    body: 'Resident Samson Tadesse has reported a burst pipe in the bathroom. This requires immediate attention. Please report to Unit A-101 as soon as possible.',
+    title: 'Urgent: Sewage overflow near Block A gate',
+    body: 'A sewage overflow has been reported near the Block A entrance. This requires immediate attention. Please report to the location as soon as possible.',
     time: '10 minutes ago',
     read: false,
     date: '2026-02-26',
   },
   {
     id: 2,
-    type: 'job_assigned',
-    title: 'New job assigned: Replace ceiling fan',
-    body: 'You have been assigned a new maintenance job — replace the ceiling fan in Unit B-305. Resident: Olyad Amanuel. Due date: 2026-02-28.',
+    type: 'task_assigned',
+    title: 'New task assigned: Repair streetlights – Block B',
+    body: 'You have been assigned a new community maintenance task – repair the broken streetlights on Block B road. Due date: 2026-02-28.',
     time: '1 hour ago',
     read: false,
     date: '2026-02-26',
@@ -74,25 +74,25 @@ const initialNotifications = [
     id: 3,
     type: 'message',
     title: 'Message from Supervisor Temesgen Alemu',
-    body: 'Please make sure to update job statuses by end of shift today. The monthly report will be generated tomorrow morning.',
+    body: 'Please make sure to update task statuses by end of shift today. The monthly report will be generated tomorrow morning.',
     time: '3 hours ago',
     read: false,
     date: '2026-02-26',
   },
   {
     id: 4,
-    type: 'job_assigned',
-    title: 'New job assigned: Install new electrical outlet',
-    body: 'Job #J-2041 has been assigned to you. Location: Unit A-204. Category: Electrical. Priority: Medium. Due: 2026-02-27.',
+    type: 'task_assigned',
+    title: 'New task assigned: Fix water main valve – Block A',
+    body: 'Task has been assigned to you. Location: Block A water main. Category: Water Supply. Priority: High. Due: 2026-02-27.',
     time: 'Yesterday, 4:30 PM',
     read: true,
     date: '2026-02-25',
   },
   {
     id: 5,
-    type: 'job_completed',
-    title: 'Job #J-2035 marked as verified',
-    body: 'Your completed job "Fix door lock – Unit C-201" has been reviewed and verified by admin. Great work!',
+    type: 'task_completed',
+    title: 'Task verified: Drainage repair – Block C',
+    body: 'Your completed task "Fix drainage issue – Block C entrance" has been reviewed and verified by admin. Great work!',
     time: 'Yesterday, 11:00 AM',
     read: true,
     date: '2026-02-25',
@@ -100,8 +100,8 @@ const initialNotifications = [
   {
     id: 6,
     type: 'info',
-    title: 'Schedule reminder: AC maintenance round',
-    body: 'Your monthly AC maintenance inspection round is scheduled for this Friday, 2026-02-28. Buildings B and C are on the list.',
+    title: 'Schedule reminder: Road inspection round',
+    body: 'Your monthly road and infrastructure inspection round is scheduled for this Friday, 2026-02-28. Blocks B and C are on the list.',
     time: '2 days ago',
     read: true,
     date: '2026-02-24',
@@ -110,7 +110,7 @@ const initialNotifications = [
     id: 7,
     type: 'message',
     title: 'Resident feedback received',
-    body: 'Resident Mulugeta Haile (Unit C-312) has left positive feedback for your work on the HVAC repair. "Very professional and prompt service."',
+    body: 'Resident Mulugeta Haile (Block C) has left positive feedback for your work on the sanitation cleanup. "Very professional and prompt service."',
     time: '2 days ago',
     read: true,
     date: '2026-02-24',
@@ -126,9 +126,9 @@ const initialNotifications = [
   },
   {
     id: 9,
-    type: 'job_completed',
-    title: 'Job #J-2028 verified: Replace light bulbs',
-    body: 'Job "Replace light bulbs – Unit B-108" has been marked as verified by Samuel Tolasa. Thank you for completing it on time.',
+    type: 'task_completed',
+    title: 'Task verified: Community notice board – Block B',
+    body: 'Task "Replace community notice board – Block B" has been marked as verified by Samuel Tolasa. Thank you for completing it on time.',
     time: '4 days ago',
     read: true,
     date: '2026-02-22',
@@ -166,7 +166,7 @@ export default function EmployeeNotifications() {
   const filters = [
     { key: 'all', label: 'All' },
     { key: 'unread', label: 'Unread' },
-    { key: 'job_assigned', label: 'Jobs' },
+    { key: 'task_assigned', label: 'Tasks' },
     { key: 'urgent', label: 'Urgent' },
     { key: 'message', label: 'Messages' },
     { key: 'info', label: 'Info' },
@@ -225,25 +225,23 @@ export default function EmployeeNotifications() {
               f.key === 'all'
                 ? notifications.length
                 : f.key === 'unread'
-                ? notifications.filter((n) => !n.read).length
-                : notifications.filter((n) => n.type === f.key).length;
+                  ? notifications.filter((n) => !n.read).length
+                  : notifications.filter((n) => n.type === f.key).length;
 
             return (
               <button
                 key={f.key}
                 onClick={() => setActiveFilter(f.key)}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                  activeFilter === f.key
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${activeFilter === f.key
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {f.label}
                 {count > 0 && (
                   <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full ${
-                      activeFilter === f.key ? 'bg-white text-blue-600' : 'bg-gray-100'
-                    }`}
+                    className={`text-xs px-1.5 py-0.5 rounded-full ${activeFilter === f.key ? 'bg-white text-blue-600' : 'bg-gray-100'
+                      }`}
                   >
                     {count}
                   </span>
@@ -273,11 +271,10 @@ export default function EmployeeNotifications() {
                     return (
                       <div
                         key={notif.id}
-                        className={`bg-white rounded-xl border transition-all duration-200 overflow-hidden ${
-                          !notif.read
+                        className={`bg-white rounded-xl border transition-all duration-200 overflow-hidden ${!notif.read
                             ? 'border-blue-300 shadow-md'
                             : 'border-gray-200 shadow-sm'
-                        }`}
+                          }`}
                       >
                         <div
                           className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -334,12 +331,12 @@ export default function EmployeeNotifications() {
                         {/* Expanded actions */}
                         {isExpanded && (
                           <div className="px-4 pb-4 flex gap-3 border-t border-gray-100 pt-3 mt-0">
-                            {notif.type === 'job_assigned' && (
+                            {notif.type === 'task_assigned' && (
                               <button
-                                onClick={() => toast.success('Navigating to job details...')}
+                                onClick={() => toast.success('Navigating to task details...')}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                               >
-                                View Job
+                                View task
                               </button>
                             )}
                             {notif.type === 'urgent' && (

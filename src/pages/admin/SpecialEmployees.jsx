@@ -15,26 +15,26 @@ export default function AdminSpecialEmployees() {
       name: 'Samuel Tolasa',
       email: 'hiwot.m@pms.com',
       role: 'Senior Manager',
-      permissions: ['manage-jobs', 'view-reports', 'manage-employees', 'approve-requests'],
+      permissions: ['manage-tasks', 'view-reports', 'manage-employees', 'approve-requests'],
     },
     {
       id: 2,
       name: 'Temesgen Alemu',
       email: 'temesgen.a@pms.com',
       role: 'Supervisor',
-      permissions: ['manage-jobs', 'view-reports', 'approve-requests'],
+      permissions: ['manage-tasks', 'view-reports', 'approve-requests'],
     },
     {
       id: 3,
       name: 'Mekdes Haile',
       email: 'mekdes.h@pms.com',
       role: 'Coordinator',
-      permissions: ['manage-jobs', 'view-reports'],
+      permissions: ['manage-tasks', 'view-reports'],
     },
   ];
 
   const allPermissions = [
-    { id: 'manage-jobs', label: 'Manage Jobs & Tasks', description: 'Create, assign, and track jobs' },
+    { id: 'manage-tasks', label: 'Manage tasks & Tasks', description: 'Create, assign, and track tasks' },
     { id: 'manage-employees', label: 'Manage Employees', description: 'Add, edit, and remove employees' },
     { id: 'approve-requests', label: 'Approve Requests', description: 'Review and approve resident requests' },
     { id: 'view-reports', label: 'View Reports', description: 'Access system reports and analytics' },
@@ -85,7 +85,7 @@ export default function AdminSpecialEmployees() {
           <div>
             <p className="text-gray-900 mb-1">About Special Employees</p>
             <p className="text-gray-600">
-              Special employees have elevated permissions to manage jobs, approve requests, and oversee operations.
+              Special employees have elevated permissions to manage tasks, approve requests, and oversee operations.
               Configure their access level based on their responsibilities.
             </p>
           </div>

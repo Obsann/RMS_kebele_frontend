@@ -8,7 +8,7 @@ import { toast } from 'sonner@2.0.3';
 const employees = [
   { id: 1, name: 'Samuel Fayisa', category: 'General' },
   { id: 2, name: 'Tesfaye Alemu', category: 'Administrative' },
-  { id: 3, name: 'Mekonnen Desta', category: 'General Maintenance' },
+  { id: 3, name: 'Mekonnen Desta', category: 'Public Infrastructure' },
   { id: 4, name: 'Meron Bekele', category: 'Administrative' },
   { id: 5, name: 'Nardos Bekele', category: 'Administrative' },
 ];
@@ -40,7 +40,7 @@ export default function SpecialEmployeeDigitalID() {
     setRequests(prev => prev.map(r => r.id === selectedReq.id ? {
       ...r, assignedTo: emp.name, dueDate: assignData.dueDate, status: 'approved',
     } : r));
-    toast.success(`ID job assigned to ${emp.name}! Due date: ${assignData.dueDate}`);
+    toast.success(`ID task assigned to ${emp.name}! Due date: ${assignData.dueDate}`);
     setShowAssignModal(false);
     setAssignData({ employeeId: '', dueDate: '' });
   };

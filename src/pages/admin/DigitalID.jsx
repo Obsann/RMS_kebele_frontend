@@ -45,7 +45,7 @@ export default function AdminDigitalID() {
 
   const handleAssignToSpecialEmployee = (se) => {
     setRequests(prev => prev.map(r => r.id === selectedRequest.id ? { ...r, assignedTo: se.name, status: 'approved' } : r));
-    toast.success(`Job to issue ID for ${selectedRequest.resident} assigned to ${se.name}!`);
+    toast.success(`task to issue ID for ${selectedRequest.resident} assigned to ${se.name}!`);
     setShowAssignModal(false);
   };
 
@@ -248,11 +248,11 @@ export default function AdminDigitalID() {
       </Modal>
 
       {/* Assign to Special Employee Modal */}
-      <Modal isOpen={showAssignModal} onClose={() => setShowAssignModal(false)} title="Assign ID Job to Special Employee" size="md">
+      <Modal isOpen={showAssignModal} onClose={() => setShowAssignModal(false)} title="Assign ID task to Special Employee" size="md">
         {selectedRequest && (
           <div className="space-y-4">
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-gray-900">Creating ID issuance job for: <strong>{selectedRequest.resident}</strong></p>
+              <p className="text-gray-900">Creating ID issuance task for: <strong>{selectedRequest.resident}</strong></p>
             </div>
             <p className="text-gray-600">Select a Special Employee to handle this ID issuance:</p>
             <div className="space-y-3">

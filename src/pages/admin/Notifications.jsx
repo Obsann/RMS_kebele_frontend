@@ -11,13 +11,13 @@ const TYPES = {
 };
 
 const initialNotifications = [
-  { id: 1, type: 'alert', title: 'Urgent maintenance needed – Unit A-101', body: 'Samson Tadesse reported a burst pipe. Immediate action required.', time: '15 min ago', read: false },
+  { id: 1, type: 'alert', title: 'Urgent: Sewage overflow – Block A entrance', body: 'Samson Tadesse reported a sewage overflow near the Block A gate. Immediate action required.', time: '15 min ago', read: false },
   { id: 2, type: 'approval', title: 'Digital ID request approved', body: 'ID request for Olyad Amanuel (Unit B-205) was approved and assigned to Samuel Tolasa.', time: '1 hour ago', read: false },
-  { id: 3, type: 'message', title: 'Special Employee report submitted', body: 'Temesgen Alemu submitted the monthly maintenance report for February 2026.', time: '3 hours ago', read: false },
+  { id: 3, type: 'message', title: 'Special Employee report submitted', body: 'Temesgen Alemu submitted the monthly community issues report for February 2026.', time: '3 hours ago', read: false },
   { id: 4, type: 'system', title: 'New resident registered', body: 'Ramadan Oumer has registered as a new resident in Unit B-108. Account pending verification.', time: 'Yesterday', read: true },
-  { id: 5, type: 'approval', title: 'Job #J-2041 completed', body: 'Samuel Fayisa completed "Install new electrical outlet – Unit A-204". Ready for verification.', time: 'Yesterday', read: true },
-  { id: 6, type: 'alert', title: '5 requests pending action', body: 'There are 5 maintenance requests that have been pending for more than 48 hours.', time: '2 days ago', read: true },
-  { id: 7, type: 'system', title: 'Monthly report ready', body: 'The February 2026 property management report is ready for review.', time: '3 days ago', read: true },
+  { id: 5, type: 'approval', title: 'Task completed: Streetlight repair – Block B', body: 'Samuel Fayisa completed "Repair broken streetlights – Block B road". Ready for verification.', time: 'Yesterday', read: true },
+  { id: 6, type: 'alert', title: '5 community issues pending action', body: 'There are 5 community issue reports that have been pending for more than 48 hours.', time: '2 days ago', read: true },
+  { id: 7, type: 'system', title: 'Monthly report ready', body: 'The February 2026 community management report is ready for review.', time: '3 days ago', read: true },
 ];
 
 export default function AdminNotifications() {

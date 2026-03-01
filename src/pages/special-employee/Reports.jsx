@@ -4,41 +4,41 @@ import { FileText, Download, Briefcase, MessageSquare, IdCard, Users, TrendingUp
 import { toast } from 'sonner@2.0.3';
 
 const myStats = [
-  { label: 'Jobs Managed', value: '28', icon: <Briefcase className="w-6 h-6" />, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { label: 'tasks Managed', value: '28', icon: <Briefcase className="w-6 h-6" />, color: 'text-blue-600', bg: 'bg-blue-50' },
   { label: 'Requests Handled', value: '19', icon: <MessageSquare className="w-6 h-6" />, color: 'text-orange-600', bg: 'bg-orange-50' },
   { label: 'IDs Processed', value: '7', icon: <IdCard className="w-6 h-6" />, color: 'text-purple-600', bg: 'bg-purple-50' },
   { label: 'Completion Rate', value: '92%', icon: <CheckCircle className="w-6 h-6" />, color: 'text-green-600', bg: 'bg-green-50' },
 ];
 
 const employeePerformance = [
-  { name: 'Samuel Fayisa', category: 'Plumbing', assigned: 8, completed: 7, pending: 1, rate: 88 },
-  { name: 'Tesfaye Alemu', category: 'Electrical', assigned: 6, completed: 6, pending: 0, rate: 100 },
-  { name: 'Biruk Woldemariam', category: 'HVAC', assigned: 7, completed: 5, pending: 2, rate: 71 },
+  { name: 'Samuel Fayisa', category: 'Water Supply', assigned: 8, completed: 7, pending: 1, rate: 88 },
+  { name: 'Tesfaye Alemu', category: 'Electricity', assigned: 6, completed: 6, pending: 0, rate: 100 },
+  { name: 'Biruk Woldemariam', category: 'Sanitation', assigned: 7, completed: 5, pending: 2, rate: 71 },
   { name: 'Mekonnen Desta', category: 'General', assigned: 5, completed: 5, pending: 0, rate: 100 },
-  { name: 'Meron Bekele', category: 'Cleaning', assigned: 4, completed: 4, pending: 0, rate: 100 },
+  { name: 'Meron Bekele', category: 'Waste Management', assigned: 4, completed: 4, pending: 0, rate: 100 },
 ];
 
-const jobCats = [
-  { category: 'Plumbing', total: 8, completed: 7, color: 'bg-blue-500' },
-  { category: 'Electrical', total: 6, completed: 6, color: 'bg-yellow-500' },
-  { category: 'HVAC', total: 7, completed: 5, color: 'bg-cyan-500' },
+const taskCats = [
+  { category: 'Water Supply', total: 8, completed: 7, color: 'bg-blue-500' },
+  { category: 'Electricity', total: 6, completed: 6, color: 'bg-yellow-500' },
+  { category: 'Sanitation', total: 7, completed: 5, color: 'bg-cyan-500' },
   { category: 'General', total: 5, completed: 5, color: 'bg-green-500' },
-  { category: 'Cleaning', total: 4, completed: 4, color: 'bg-purple-500' },
+  { category: 'Waste Management', total: 4, completed: 4, color: 'bg-purple-500' },
 ];
 
 const weeklyActivity = [
-  { day: 'Mon', jobs: 4, requests: 3 },
-  { day: 'Tue', jobs: 6, requests: 5 },
-  { day: 'Wed', jobs: 3, requests: 2 },
-  { day: 'Thu', jobs: 7, requests: 4 },
-  { day: 'Fri', jobs: 5, requests: 6 },
-  { day: 'Sat', jobs: 2, requests: 1 },
-  { day: 'Sun', jobs: 1, requests: 0 },
+  { day: 'Mon', tasks: 4, requests: 3 },
+  { day: 'Tue', tasks: 6, requests: 5 },
+  { day: 'Wed', tasks: 3, requests: 2 },
+  { day: 'Thu', tasks: 7, requests: 4 },
+  { day: 'Fri', tasks: 5, requests: 6 },
+  { day: 'Sat', tasks: 2, requests: 1 },
+  { day: 'Sun', tasks: 1, requests: 0 },
 ];
 
 export default function SpecialEmployeeReports() {
   const [reportPeriod, setReportPeriod] = useState('monthly');
-  const maxActivity = Math.max(...weeklyActivity.map(d => d.jobs + d.requests));
+  const maxActivity = Math.max(...weeklyActivity.map(d => d.tasks + d.requests));
 
   const handleGenerate = () => toast.success(`${reportPeriod} report generated successfully!`);
   const handleExport = (type) => toast.success(`Report exported as ${type}!`);
@@ -98,7 +98,7 @@ export default function SpecialEmployeeReports() {
           <div className="flex items-center justify-between mb-6">
             <h2>Weekly Activity</h2>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-full"></span><span className="text-gray-600">Jobs</span></div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-full"></span><span className="text-gray-600">tasks</span></div>
               <div className="flex items-center gap-2"><span className="w-3 h-3 bg-orange-400 rounded-full"></span><span className="text-gray-600">Requests</span></div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function SpecialEmployeeReports() {
             {weeklyActivity.map((d, idx) => (
               <div key={idx} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full flex items-end gap-0.5 h-28">
-                  <div className="flex-1 bg-blue-500 rounded-t opacity-80" style={{ height: `${(d.jobs / maxActivity) * 100}%` }}></div>
+                  <div className="flex-1 bg-blue-500 rounded-t opacity-80" style={{ height: `${(d.tasks / maxActivity) * 100}%` }}></div>
                   <div className="flex-1 bg-orange-400 rounded-t opacity-80" style={{ height: `${(d.requests / maxActivity) * 100}%` }}></div>
                 </div>
                 <span className="text-gray-500" style={{ fontSize: '11px' }}>{d.day}</span>
@@ -147,11 +147,11 @@ export default function SpecialEmployeeReports() {
             </div>
           </div>
 
-          {/* Job Categories */}
+          {/* task Categories */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="mb-5">Jobs by Category</h2>
+            <h2 className="mb-5">tasks by Category</h2>
             <div className="space-y-4">
-              {jobCats.map((cat, idx) => (
+              {taskCats.map((cat, idx) => (
                 <div key={idx}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-gray-700">{cat.category}</span>
@@ -169,7 +169,7 @@ export default function SpecialEmployeeReports() {
         {/* Report Cards */}
         <div className="grid sm:grid-cols-3 gap-4">
           {[
-            { title: 'Job Summary Report', desc: 'All jobs managed this month with employee assignments', icon: <Briefcase className="w-8 h-8 text-blue-600" /> },
+            { title: 'task Summary Report', desc: 'All tasks managed this month with employee assignments', icon: <Briefcase className="w-8 h-8 text-blue-600" /> },
             { title: 'Requests Report', desc: 'Maintenance requests and complaints handled by your team', icon: <MessageSquare className="w-8 h-8 text-orange-600" /> },
             { title: 'Digital ID Report', desc: 'ID requests processed and issuance timeline', icon: <IdCard className="w-8 h-8 text-purple-600" /> },
           ].map((card, idx) => (

@@ -15,7 +15,6 @@ import AdminResidents from './pages/admin/Residents';
 import AdminResidentProfile from './pages/admin/ResidentProfile';
 import AdminEmployees from './pages/admin/Employees';
 import AdminSpecialEmployees from './pages/admin/SpecialEmployees';
-import AdminJobs from './pages/admin/Jobs';
 import AdminRequests from './pages/admin/Requests';
 import AdminDigitalID from './pages/admin/DigitalID';
 import AdminNotifications from './pages/admin/Notifications';
@@ -25,7 +24,6 @@ import AdminReports from './pages/admin/Reports';
 import SpecialEmployeeDashboard from './pages/special-employee/Dashboard';
 import SpecialEmployeeResidents from './pages/special-employee/Residents';
 import SpecialEmployeeEmployees from './pages/special-employee/Employees';
-import SpecialEmployeeJobs from './pages/special-employee/Jobs';
 import SpecialEmployeeRequests from './pages/special-employee/Requests';
 import SpecialEmployeeDigitalID from './pages/special-employee/DigitalID';
 import SpecialEmployeeNotifications from './pages/special-employee/Notifications';
@@ -71,7 +69,6 @@ const router = createBrowserRouter([
   { path: '/admin/residents/:id', element: <AuthGuard allowedRoles={['admin']}><AdminResidentProfile /></AuthGuard> },
   { path: '/admin/employees', element: <AuthGuard allowedRoles={['admin']}><AdminEmployees /></AuthGuard> },
   { path: '/admin/special-employees', element: <AuthGuard allowedRoles={['admin']}><AdminSpecialEmployees /></AuthGuard> },
-  { path: '/admin/jobs', element: <AuthGuard allowedRoles={['admin']}><AdminJobs /></AuthGuard> },
   { path: '/admin/requests', element: <AuthGuard allowedRoles={['admin']}><AdminRequests /></AuthGuard> },
   { path: '/admin/digital-id', element: <AuthGuard allowedRoles={['admin']}><AdminDigitalID /></AuthGuard> },
   { path: '/admin/notifications', element: <AuthGuard allowedRoles={['admin']}><AdminNotifications /></AuthGuard> },
@@ -81,7 +78,6 @@ const router = createBrowserRouter([
   { path: '/special-employee/dashboard', element: <AuthGuard allowedRoles={['special-employee']}><SpecialEmployeeDashboard /></AuthGuard> },
   { path: '/special-employee/residents', element: <AuthGuard allowedRoles={['special-employee']}><SpecialEmployeeResidents /></AuthGuard> },
   { path: '/special-employee/employees', element: <AuthGuard allowedRoles={['special-employee']}><SpecialEmployeeEmployees /></AuthGuard> },
-  { path: '/special-employee/jobs', element: <AuthGuard allowedRoles={['special-employee']}><SpecialEmployeeJobs /></AuthGuard> },
   { path: '/special-employee/requests', element: <AuthGuard allowedRoles={['special-employee']}><SpecialEmployeeRequests /></AuthGuard> },
   { path: '/special-employee/digital-id', element: <AuthGuard allowedRoles={['special-employee']}><SpecialEmployeeDigitalID /></AuthGuard> },
   { path: '/special-employee/notifications', element: <AuthGuard allowedRoles={['special-employee']}><SpecialEmployeeNotifications /></AuthGuard> },

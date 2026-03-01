@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Modal from '../../components/ui/Modal';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { Wrench, MessageSquare } from 'lucide-react';
+import { AlertTriangle, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner@2.0.3';
 
 export default function ResidentRequests() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
-  const [requestType, setRequestType] = useState('maintenance');
+  const [requestType, setRequestType] = useState('request');
 
   const requests = [
-    { id: 1, type: 'maintenance', subject: 'Leaking pipe in kitchen', category: 'Plumbing', description: 'Pipe under sink is leaking steadily.', status: 'in-progress', date: '2026-02-24', response: 'Technician assigned — Samuel Fayisa' },
-    { id: 2, type: 'maintenance', subject: 'AC not cooling properly', category: 'HVAC', description: 'Air conditioner is running but not cooling the room.', status: 'pending', date: '2026-02-23', response: '-' },
-    { id: 3, type: 'complaint', subject: 'Noise from upstairs', category: 'Noise', description: 'Loud music and noise late at night from the unit above.', status: 'pending', date: '2026-02-22', response: '-' },
-    { id: 4, type: 'maintenance', subject: 'Door lock issue', category: 'Maintenance', description: 'Main door lock is stuck and difficult to open.', status: 'completed', date: '2026-02-18', response: 'Completed by Mekonnen Desta' },
+    { id: 1, type: 'request', subject: 'No water supply since morning', category: 'Water Supply', description: 'Water has been cut off in our block since 6 AM. Multiple neighbors affected.', status: 'in-progress', date: '2026-02-28', response: 'Staff assigned — Samuel Fayisa is investigating the issue' },
+    { id: 2, type: 'request', subject: 'Streetlight outage near Block A', category: 'Electricity', description: 'Two streetlights on the walkway near Block A gate have been out for 3 nights. Safety concern.', status: 'pending', date: '2026-02-27', response: '-' },
+    { id: 3, type: 'complaint', subject: 'Garbage not collected for 3 days', category: 'Waste Collection', description: 'The waste bins near our block are overflowing. No collection truck has come.', status: 'pending', date: '2026-02-26', response: '-' },
+    { id: 4, type: 'request', subject: 'Pothole on access road near gate', category: 'Road/Access', description: 'Large pothole on the main entrance road causing problems for vehicles and pedestrians.', status: 'resolved', date: '2026-02-22', response: 'Resolved — Road repaired by maintenance team' },
   ];
 
   const [formData, setFormData] = useState({
@@ -24,15 +24,15 @@ export default function ResidentRequests() {
     priority: 'medium',
   });
 
-  const maintenanceCategories = ['Plumbing', 'Electrical', 'HVAC', 'General Maintenance', 'Appliance', 'Other'];
-  const complaintCategories = ['Noise', 'Cleanliness', 'Parking', 'Safety', 'Neighbor Issue', 'Other'];
+  const requestCategories = ['Water Supply', 'Electricity', 'Sewage/Sanitation', 'Security', 'Road/Access', 'Public Infrastructure', 'Registration Issues', 'Documentation/Permits', 'Other'];
+  const complaintCategories = ['Waste Collection', 'Noise Disturbance', 'Community Violations', 'Safety Concern', 'Lost & Found', 'Other'];
 
   const handleSubmit = () => {
     if (!formData.category || !formData.subject || !formData.description) {
       toast.error('Please fill in all fields');
       return;
     }
-    toast.success(`${requestType === 'maintenance' ? 'Maintenance request' : 'Complaint'} submitted successfully!`);
+    toast.success(`${requestType === 'request' ? 'Request' : 'Complaint'} submitted successfully!`);
     setShowRequestModal(false);
     setShowComplaintModal(false);
     setFormData({ category: '', subject: '', description: '', priority: 'medium' });
@@ -40,7 +40,7 @@ export default function ResidentRequests() {
 
   const openModal = (type) => {
     setRequestType(type);
-    if (type === 'maintenance') {
+    if (type === 'request') {
       setShowRequestModal(true);
     } else {
       setShowComplaintModal(true);
@@ -54,14 +54,14 @@ export default function ResidentRequests() {
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div>
             <h1>My Requests & Complaints</h1>
-            <p className="text-gray-600 mt-1">Track your maintenance requests and complaints</p>
+            <p className="text-gray-600 mt-1">Report community issues and track their resolution</p>
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => openModal('maintenance')}
+              onClick={() => openModal('request')}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <Wrench className="w-5 h-5" />
+              <AlertTriangle className="w-5 h-5" />
               New Request
             </button>
             <button
@@ -97,12 +97,11 @@ export default function ResidentRequests() {
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
-                      request.type === 'maintenance'
+                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${request.type === 'request'
                         ? 'bg-blue-100 text-blue-800'
                         : 'bg-orange-100 text-orange-800'
-                    }`}>
-                      {request.type === 'maintenance' ? <Wrench className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                      }`}>
+                      {request.type === 'request' ? <AlertTriangle className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
                       {request.type}
                     </span>
                     <StatusBadge status={request.status} size="sm" />
@@ -132,7 +131,7 @@ export default function ResidentRequests() {
       <Modal
         isOpen={showRequestModal}
         onClose={() => setShowRequestModal(false)}
-        title="Submit Maintenance Request"
+        title="Submit New Request"
         size="lg"
       >
         <div className="space-y-4">
@@ -144,7 +143,7 @@ export default function ResidentRequests() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Category</option>
-              {maintenanceCategories.map((cat, idx) => (
+              {requestCategories.map((cat, idx) => (
                 <option key={idx} value={cat}>{cat}</option>
               ))}
             </select>

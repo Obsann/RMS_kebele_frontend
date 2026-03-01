@@ -5,26 +5,26 @@ import { toast } from 'sonner@2.0.3';
 
 const summaryStats = [
   { label: 'Total Residents', value: '487', icon: <Users className="w-6 h-6" />, color: 'text-blue-600', bg: 'bg-blue-50' },
-  { label: 'Jobs This Month', value: '128', icon: <Briefcase className="w-6 h-6" />, color: 'text-purple-600', bg: 'bg-purple-50' },
+  { label: 'tasks This Month', value: '128', icon: <Briefcase className="w-6 h-6" />, color: 'text-purple-600', bg: 'bg-purple-50' },
   { label: 'Requests Handled', value: '94', icon: <MessageSquare className="w-6 h-6" />, color: 'text-orange-600', bg: 'bg-orange-50' },
   { label: 'IDs Issued', value: '37', icon: <IdCard className="w-6 h-6" />, color: 'text-green-600', bg: 'bg-green-50' },
 ];
 
-const jobStats = [
-  { category: 'Plumbing', total: 32, completed: 28, inProgress: 3, pending: 1 },
-  { category: 'Electrical', total: 27, completed: 22, inProgress: 4, pending: 1 },
-  { category: 'HVAC', total: 19, completed: 15, inProgress: 2, pending: 2 },
-  { category: 'General Maintenance', total: 24, completed: 20, inProgress: 3, pending: 1 },
-  { category: 'Cleaning', total: 18, completed: 18, inProgress: 0, pending: 0 },
+const taskStats = [
+  { category: 'Water Supply', total: 32, completed: 28, inProgress: 3, pending: 1 },
+  { category: 'Electricity', total: 27, completed: 22, inProgress: 4, pending: 1 },
+  { category: 'Sanitation', total: 19, completed: 15, inProgress: 2, pending: 2 },
+  { category: 'Public Infrastructure', total: 24, completed: 20, inProgress: 3, pending: 1 },
+  { category: 'Waste Management', total: 18, completed: 18, inProgress: 0, pending: 0 },
   { category: 'Security', total: 8, completed: 7, inProgress: 1, pending: 0 },
 ];
 
 const employeePerformance = [
-  { name: 'Samuel Fayisa', category: 'Plumbing', completed: 18, rating: 4.8 },
-  { name: 'Tesfaye Alemu', category: 'Electrical', completed: 15, rating: 4.6 },
-  { name: 'Biruk Woldemariam', category: 'HVAC', completed: 12, rating: 4.7 },
+  { name: 'Samuel Fayisa', category: 'Water Supply', completed: 18, rating: 4.8 },
+  { name: 'Tesfaye Alemu', category: 'Electricity', completed: 15, rating: 4.6 },
+  { name: 'Biruk Woldemariam', category: 'Sanitation', completed: 12, rating: 4.7 },
   { name: 'Mekonnen Desta', category: 'General', completed: 14, rating: 4.5 },
-  { name: 'Hana Worku', category: 'Landscaping', completed: 10, rating: 4.4 },
+  { name: 'Hana Worku', category: 'Road Maintenance', completed: 10, rating: 4.4 },
 ];
 
 const monthlyRequests = [
@@ -151,11 +151,11 @@ export default function AdminReports() {
 
         {/* Two-column grid */}
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Job Stats by Category */}
+          {/* task Stats by Category */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="mb-5">Jobs by Category</h2>
+            <h2 className="mb-5">tasks by Category</h2>
             <div className="space-y-4">
-              {jobStats.map((cat, idx) => (
+              {taskStats.map((cat, idx) => (
                 <div key={idx}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-gray-700">{cat.category}</span>
@@ -193,7 +193,7 @@ export default function AdminReports() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-gray-900">{emp.completed} jobs</p>
+                    <p className="text-gray-900">{emp.completed} tasks</p>
                     <div className="flex items-center gap-1 justify-end">
                       <span className="text-yellow-500">★</span>
                       <span className="text-gray-600">{emp.rating}</span>
@@ -209,7 +209,7 @@ export default function AdminReports() {
         <div className="grid sm:grid-cols-3 gap-4">
           {[
             { title: 'Resident Report', desc: 'All resident information, dependents, and ID status', icon: <Users className="w-8 h-8 text-blue-600" /> },
-            { title: 'Job & Task Report', desc: 'Job completion rates, employee assignments, and timelines', icon: <Briefcase className="w-8 h-8 text-purple-600" /> },
+            { title: 'task & Task Report', desc: 'task completion rates, employee assignments, and timelines', icon: <Briefcase className="w-8 h-8 text-purple-600" /> },
             { title: 'Digital ID Report', desc: 'ID issuance statistics, pending requests, and completion rates', icon: <IdCard className="w-8 h-8 text-green-600" /> },
           ].map((card, idx) => (
             <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">

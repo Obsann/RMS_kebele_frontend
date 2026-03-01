@@ -1,27 +1,27 @@
 import React from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import { Users, UserCog, MessageSquare, Briefcase, TrendingUp, Calendar } from 'lucide-react';
+import { Users, UserCog, MessageSquare, AlertTriangle, TrendingUp, Calendar } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 
 export default function AdminDashboard() {
   const stats = [
     { label: 'Total Residents', value: '487', icon: <Users className="w-8 h-8" />, color: 'bg-blue-500', change: '+12%' },
     { label: 'Employees', value: '52', icon: <UserCog className="w-8 h-8" />, color: 'bg-green-500', change: '+3%' },
-    { label: 'Active Requests', value: '34', icon: <MessageSquare className="w-8 h-8" />, color: 'bg-yellow-500', change: '-5%' },
-    { label: 'Tasks in Progress', value: '18', icon: <Briefcase className="w-8 h-8" />, color: 'bg-purple-500', change: '+8%' },
+    { label: 'Open Issues', value: '34', icon: <MessageSquare className="w-8 h-8" />, color: 'bg-yellow-500', change: '-5%' },
+    { label: 'Urgent Reports', value: '7', icon: <AlertTriangle className="w-8 h-8" />, color: 'bg-red-500', change: '+2' },
   ];
 
   const recentRequests = [
-    { id: 1, resident: 'Samson Tadesse', unit: 'A-101', type: 'Plumbing', status: 'pending', date: '2026-02-26' },
-    { id: 2, resident: 'Olyad Amanuel', unit: 'B-205', type: 'Electrical', status: 'in-progress', date: '2026-02-26' },
-    { id: 3, resident: 'Mulugeta Haile', unit: 'C-312', type: 'HVAC', status: 'completed', date: '2026-02-25' },
-    { id: 4, resident: 'Semira Ambisa', unit: 'A-204', type: 'Maintenance', status: 'pending', date: '2026-02-25' },
+    { id: 1, resident: 'Samson Tadesse', unit: 'A-101', type: 'Water Supply', status: 'pending', date: '2026-02-28' },
+    { id: 2, resident: 'Olyad Amanuel', unit: 'B-205', type: 'Electricity', status: 'in-progress', date: '2026-02-27' },
+    { id: 3, resident: 'Mulugeta Haile', unit: 'C-312', type: 'Noise Disturbance', status: 'resolved', date: '2026-02-27' },
+    { id: 4, resident: 'Semira Ambisa', unit: 'A-204', type: 'Sewage/Sanitation', status: 'pending', date: '2026-02-26' },
   ];
 
-  const upcomingTasks = [
-    { id: 1, task: 'Fix broken pipe - Unit A-101', employee: 'Samuel Fayisa', priority: 'High', dueDate: 'Today' },
-    { id: 2, task: 'Install new light fixtures - Unit B-205', employee: 'Tesfaye Alemu', priority: 'Medium', dueDate: 'Tomorrow' },
-    { id: 3, task: 'AC maintenance - Unit C-312', employee: 'Biruk Woldemariam', priority: 'Low', dueDate: 'Mar 1' },
+  const urgentIssues = [
+    { id: 1, issue: 'Sewage overflow — Block A entrance', assignedTo: 'Samuel Fayisa', priority: 'High', reported: 'Today' },
+    { id: 2, issue: 'Streetlight outage — Block B road', assignedTo: 'Tesfaye Alemu', priority: 'High', reported: 'Yesterday' },
+    { id: 3, issue: 'Pothole on main access road', assignedTo: 'Biruk Woldemariam', priority: 'Medium', reported: 'Feb 25' },
   ];
 
   return (
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
                   <tr>
                     <th className="px-6 py-3 text-left text-gray-600">Resident</th>
                     <th className="px-6 py-3 text-left text-gray-600">Unit</th>
-                    <th className="px-6 py-3 text-left text-gray-600">Type</th>
+                    <th className="px-6 py-3 text-left text-gray-600">Category</th>
                     <th className="px-6 py-3 text-left text-gray-600">Status</th>
                   </tr>
                 </thead>
@@ -91,26 +91,25 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Upcoming Tasks */}
+          {/* Urgent Issues */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="p-6 border-b border-gray-200">
-              <h2>Upcoming Tasks</h2>
+              <h2>Urgent Issues</h2>
             </div>
             <div className="p-6 space-y-4">
-              {upcomingTasks.map((task) => (
-                <div key={task.id} className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg">
+              {urgentIssues.map((item) => (
+                <div key={item.id} className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg">
                   <div className="flex-1">
-                    <p className="text-gray-900 mb-1">{task.task}</p>
-                    <p className="text-gray-600">Assigned to: {task.employee}</p>
+                    <p className="text-gray-900 mb-1">{item.issue}</p>
+                    <p className="text-gray-600">Assigned to: {item.assignedTo}</p>
                   </div>
                   <div className="text-right">
-                    <span className={`inline-block px-2 py-1 rounded text-white ${
-                      task.priority === 'High' ? 'bg-red-500' :
-                      task.priority === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}>
-                      {task.priority}
+                    <span className={`inline-block px-2 py-1 rounded text-white ${item.priority === 'High' ? 'bg-red-500' :
+                        item.priority === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}>
+                      {item.priority}
                     </span>
-                    <p className="text-gray-600 mt-1">{task.dueDate}</p>
+                    <p className="text-gray-600 mt-1">{item.reported}</p>
                   </div>
                 </div>
               ))}

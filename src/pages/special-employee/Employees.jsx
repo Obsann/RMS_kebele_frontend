@@ -4,14 +4,14 @@ import StatusBadge from '../../components/ui/StatusBadge';
 import { Search, Lock, Eye, Info } from 'lucide-react';
 
 const employees = [
-  { id: 1, name: 'Samuel Fayisa', email: 'samuel.f@pms.com', phone: '+251 911 111 001', category: 'Plumbing', assignedJobs: 5, status: 'active' },
-  { id: 2, name: 'Tesfaye Alemu', email: 'tesfaye.a@pms.com', phone: '+251 911 111 002', category: 'Electrical', assignedJobs: 3, status: 'active' },
-  { id: 3, name: 'Biruk Woldemariam', email: 'biruk.w@pms.com', phone: '+251 911 111 003', category: 'HVAC', assignedJobs: 7, status: 'active' },
-  { id: 4, name: 'Mekonnen Desta', email: 'mekonnen.d@pms.com', phone: '+251 911 111 004', category: 'General Maintenance', assignedJobs: 4, status: 'active' },
-  { id: 5, name: 'Hana Worku', email: 'hana.w@pms.com', phone: '+251 911 111 005', category: 'Landscaping', assignedJobs: 2, status: 'inactive' },
-  { id: 6, name: 'Meron Bekele', email: 'meron.b@pms.com', phone: '+251 911 111 006', category: 'Cleaning', assignedJobs: 6, status: 'active' },
-  { id: 7, name: 'Robel Haile', email: 'robel.h@pms.com', phone: '+251 911 111 007', category: 'Security', assignedJobs: 1, status: 'active' },
-  { id: 8, name: 'Nardos Bekele', email: 'nardos.b@pms.com', phone: '+251 911 111 008', category: 'Carpentry', assignedJobs: 3, status: 'active' },
+  { id: 1, name: 'Samuel Fayisa', email: 'samuel.f@pms.com', phone: '+251 911 111 001', category: 'Water Supply', assignedtasks: 5, status: 'active' },
+  { id: 2, name: 'Tesfaye Alemu', email: 'tesfaye.a@pms.com', phone: '+251 911 111 002', category: 'Electricity', assignedtasks: 3, status: 'active' },
+  { id: 3, name: 'Biruk Woldemariam', email: 'biruk.w@pms.com', phone: '+251 911 111 003', category: 'Sanitation', assignedtasks: 7, status: 'active' },
+  { id: 4, name: 'Mekonnen Desta', email: 'mekonnen.d@pms.com', phone: '+251 911 111 004', category: 'Public Infrastructure', assignedtasks: 4, status: 'active' },
+  { id: 5, name: 'Hana Worku', email: 'hana.w@pms.com', phone: '+251 911 111 005', category: 'Road Maintenance', assignedtasks: 2, status: 'inactive' },
+  { id: 6, name: 'Meron Bekele', email: 'meron.b@pms.com', phone: '+251 911 111 006', category: 'Waste Management', assignedtasks: 6, status: 'active' },
+  { id: 7, name: 'Robel Haile', email: 'robel.h@pms.com', phone: '+251 911 111 007', category: 'Security', assignedtasks: 1, status: 'active' },
+  { id: 8, name: 'Nardos Bekele', email: 'nardos.b@pms.com', phone: '+251 911 111 008', category: 'Carpentry', assignedtasks: 3, status: 'active' },
 ];
 
 export default function SpecialEmployeeEmployees() {
@@ -42,7 +42,7 @@ export default function SpecialEmployeeEmployees() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-gray-700">
-            You can view employees here and assign them jobs through the <strong>Job Management</strong> section.
+            You can view employees here and assign them tasks through the <strong>task Management</strong> section.
             Only Admin can add, edit, or remove employees.
           </p>
         </div>
@@ -56,7 +56,7 @@ export default function SpecialEmployeeEmployees() {
             <p className="text-gray-600 mb-1">Active</p><p className="text-gray-900">{employees.filter(e => e.status === 'active').length}</p>
           </div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-            <p className="text-gray-600 mb-1">Total Active Jobs</p><p className="text-gray-900">{employees.reduce((s, e) => s + e.assignedJobs, 0)}</p>
+            <p className="text-gray-600 mb-1">Total Active tasks</p><p className="text-gray-900">{employees.reduce((s, e) => s + e.assignedtasks, 0)}</p>
           </div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
             <p className="text-gray-600 mb-1">Categories</p><p className="text-gray-900">{new Set(employees.map(e => e.category)).size}</p>
@@ -87,7 +87,7 @@ export default function SpecialEmployeeEmployees() {
                   <th className="px-6 py-3 text-left text-gray-600">Email</th>
                   <th className="px-6 py-3 text-left text-gray-600">Phone</th>
                   <th className="px-6 py-3 text-left text-gray-600">Category</th>
-                  <th className="px-6 py-3 text-left text-gray-600">Jobs</th>
+                  <th className="px-6 py-3 text-left text-gray-600">tasks</th>
                   <th className="px-6 py-3 text-left text-gray-600">Status</th>
                   <th className="px-6 py-3 text-left text-gray-600">Actions</th>
                 </tr>
@@ -108,7 +108,7 @@ export default function SpecialEmployeeEmployees() {
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{emp.category}</span>
                     </td>
-                    <td className="px-6 py-4 text-gray-900">{emp.assignedJobs}</td>
+                    <td className="px-6 py-4 text-gray-900">{emp.assignedtasks}</td>
                     <td className="px-6 py-4"><StatusBadge status={emp.status} size="sm" /></td>
                     <td className="px-6 py-4">
                       <button className="p-2 hover:bg-blue-50 rounded-lg text-blue-600" title="View (Read-only)">

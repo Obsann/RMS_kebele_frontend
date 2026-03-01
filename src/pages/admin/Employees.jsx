@@ -10,14 +10,14 @@ export default function AdminEmployees() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const employees = [
-    { id: 1, name: 'Samuel Fayisa', email: 'samuel.f@pms.com', phone: '+251 911 111 001', category: 'Plumbing', assignedJobs: 5, status: 'active' },
-    { id: 2, name: 'Tesfaye Alemu', email: 'tesfaye.a@pms.com', phone: '+251 911 111 002', category: 'Electrical', assignedJobs: 3, status: 'active' },
-    { id: 3, name: 'Biruk Woldemariam', email: 'biruk.w@pms.com', phone: '+251 911 111 003', category: 'HVAC', assignedJobs: 7, status: 'active' },
-    { id: 4, name: 'Mekonnen Desta', email: 'mekonnen.d@pms.com', phone: '+251 911 111 004', category: 'General Maintenance', assignedJobs: 4, status: 'active' },
-    { id: 5, name: 'Hana Worku', email: 'hana.w@pms.com', phone: '+251 911 111 005', category: 'Landscaping', assignedJobs: 2, status: 'inactive' },
+    { id: 1, name: 'Samuel Fayisa', email: 'samuel.f@pms.com', phone: '+251 911 111 001', category: 'Water Supply', assignedtasks: 5, status: 'active' },
+    { id: 2, name: 'Tesfaye Alemu', email: 'tesfaye.a@pms.com', phone: '+251 911 111 002', category: 'Electricity', assignedtasks: 3, status: 'active' },
+    { id: 3, name: 'Biruk Woldemariam', email: 'biruk.w@pms.com', phone: '+251 911 111 003', category: 'Sanitation', assignedtasks: 7, status: 'active' },
+    { id: 4, name: 'Mekonnen Desta', email: 'mekonnen.d@pms.com', phone: '+251 911 111 004', category: 'Public Infrastructure', assignedtasks: 4, status: 'active' },
+    { id: 5, name: 'Hana Worku', email: 'hana.w@pms.com', phone: '+251 911 111 005', category: 'Road Maintenance', assignedtasks: 2, status: 'inactive' },
   ];
 
-  const jobCategories = ['Plumbing', 'Electrical', 'HVAC', 'General Maintenance', 'Landscaping', 'Cleaning', 'Security', 'Carpentry'];
+  const taskCategories = ['Water Supply', 'Electricity', 'Sanitation', 'Public Infrastructure', 'Road Maintenance', 'Waste Management', 'Security', 'Carpentry'];
 
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', category: '' });
 
@@ -62,12 +62,12 @@ export default function AdminEmployees() {
             <p className="text-gray-900">52</p>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-gray-600 mb-1">Active Jobs</p>
+            <p className="text-gray-600 mb-1">Active tasks</p>
             <p className="text-gray-900">21</p>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <p className="text-gray-600 mb-1">Categories</p>
-            <p className="text-gray-900">{jobCategories.length}</p>
+            <p className="text-gray-900">{taskCategories.length}</p>
           </div>
         </div>
 
@@ -86,7 +86,7 @@ export default function AdminEmployees() {
             </div>
             <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">All Categories</option>
-              {jobCategories.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
+              {taskCategories.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
             </select>
             <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
               <Filter className="w-5 h-5" />
@@ -105,7 +105,7 @@ export default function AdminEmployees() {
                   <th className="px-6 py-3 text-left text-gray-600">Email</th>
                   <th className="px-6 py-3 text-left text-gray-600">Phone</th>
                   <th className="px-6 py-3 text-left text-gray-600">Category</th>
-                  <th className="px-6 py-3 text-left text-gray-600">Assigned Jobs</th>
+                  <th className="px-6 py-3 text-left text-gray-600">Assigned tasks</th>
                   <th className="px-6 py-3 text-left text-gray-600">Status</th>
                   <th className="px-6 py-3 text-left text-gray-600">Actions</th>
                 </tr>
@@ -126,7 +126,7 @@ export default function AdminEmployees() {
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">{employee.category}</span>
                     </td>
-                    <td className="px-6 py-4">{employee.assignedJobs}</td>
+                    <td className="px-6 py-4">{employee.assignedtasks}</td>
                     <td className="px-6 py-4"><StatusBadge status={employee.status} size="sm" /></td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -167,10 +167,10 @@ export default function AdminEmployees() {
             <input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+251 9XX XXX XXX" />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2">Job Category</label>
+            <label className="block text-gray-700 mb-2">task Category</label>
             <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">Select Category</option>
-              {jobCategories.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
+              {taskCategories.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
             </select>
           </div>
           <div className="flex gap-3 pt-4">
