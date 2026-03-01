@@ -66,7 +66,7 @@ export default function EmployeeDashboard() {
               <CheckCircle className="w-8 h-8 text-green-600" />
               <div>
                 <p className="text-gray-600">Completed This Week</p>
-                <p className="text-gray-900">{completedtasks.length}</p>
+                <p className="text-gray-900">{completedTasks.length}</p>
               </div>
             </div>
           </div>
