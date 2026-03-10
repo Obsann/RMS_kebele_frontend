@@ -33,12 +33,15 @@ import SpecialEmployeeReports from './pages/special-employee/Reports';
 // Employee Pages
 import EmployeeDashboard from './pages/employee/Dashboard';
 import EmployeeNotifications from './pages/employee/Notifications';
+import EmployeeProfile from './pages/employee/Profile';
+import EmployeeDigitalID from './pages/employee/DigitalID';
 
 // Resident Pages
 import ResidentDashboard from './pages/resident/Dashboard';
 import ResidentRequests from './pages/resident/Requests';
 import ResidentProfile from './pages/resident/Profile';
 import ResidentDigitalID from './pages/resident/DigitalID';
+import ResidentNotifications from './pages/resident/Notifications';
 
 import { Toaster } from 'sonner';
 
@@ -99,12 +102,15 @@ const router = createBrowserRouter([
   // Employee Routes
   { path: '/employee/dashboard', element: <AuthGuard allowedRoles={['employee']}><EmployeeDashboard /></AuthGuard> },
   { path: '/employee/notifications', element: <AuthGuard allowedRoles={['employee']}><EmployeeNotifications /></AuthGuard> },
+  { path: '/employee/profile', element: <AuthGuard allowedRoles={['employee']}><EmployeeProfile /></AuthGuard> },
+  { path: '/employee/digital-id', element: <AuthGuard allowedRoles={['employee']}><EmployeeDigitalID /></AuthGuard> },
 
   // Resident Routes
   { path: '/resident/dashboard', element: <AuthGuard allowedRoles={['resident']}><ResidentDashboard /></AuthGuard> },
   { path: '/resident/requests', element: <AuthGuard allowedRoles={['resident']}><ResidentRequests /></AuthGuard> },
   { path: '/resident/profile', element: <AuthGuard allowedRoles={['resident']}><ResidentProfile /></AuthGuard> },
   { path: '/resident/digital-id', element: <AuthGuard allowedRoles={['resident']}><ResidentDigitalID /></AuthGuard> },
+  { path: '/resident/notifications', element: <AuthGuard allowedRoles={['resident']}><ResidentNotifications /></AuthGuard> },
 
   // Catch-all
   { path: '*', element: <Navigate to="/" replace /> },

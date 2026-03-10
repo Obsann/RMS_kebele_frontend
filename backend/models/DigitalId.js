@@ -15,11 +15,17 @@ const digitalIdSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['pending', 'approved', 'expired', 'revoked'],
+            enum: ['pending', 'verified', 'approved', 'processing', 'issued', 'expired', 'revoked'],
             default: 'pending'
         },
         issuedAt: Date,
         expiresAt: Date,
+        assignedTo: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'kebeleUser'
+        },
+        issueDate: Date,
+        idNumber: String,
         // Verification history
         verifications: [{
             verifiedBy: {

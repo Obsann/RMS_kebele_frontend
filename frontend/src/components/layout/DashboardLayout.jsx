@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../App';
@@ -31,6 +31,29 @@ export default function DashboardLayout({ children }) {
   const { t, lang, toggleLanguage } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [bellCount, setBellCount] = useState(0);
+
+  // Fetch real unread notification count from API
+  useEffect(() => {
+    if (!user) return;
+    const load = async () => {
+      try {
+        const token = localStorage.getItem('rms_token');
+        if (!token) return;
+        const res = await fetch('/api/notifications?limit=1', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setBellCount(data.unreadCount ?? 0);
+        }
+      } catch (e) { /* silent */ }
+    };
+    load();
+    // Refresh every 90 seconds
+    const interval = setInterval(load, 90000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const adminMenuItems = [
     { labelKey: 'dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/admin/dashboard' },
@@ -44,9 +67,9 @@ export default function DashboardLayout({ children }) {
   ];
 
   const specialEmployeeMenuItems = [
-    { labelKey: 'dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/special-employee/dashboard', readOnly: true },
+    { labelKey: 'dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/special-employee/dashboard' },
     { labelKey: 'residents', icon: <Users className="w-5 h-5" />, path: '/special-employee/residents' },
-    { labelKey: 'employees', icon: <UserCog className="w-5 h-5" />, path: '/special-employee/employees', readOnly: true },
+    { labelKey: 'employees', icon: <UserCog className="w-5 h-5" />, path: '/special-employee/employees' },
     { labelKey: 'requestsComplaints', icon: <MessageSquare className="w-5 h-5" />, path: '/special-employee/requests' },
     { labelKey: 'digitalIdSystem', icon: <IdCard className="w-5 h-5" />, path: '/special-employee/digital-id' },
     { labelKey: 'notifications', icon: <Bell className="w-5 h-5" />, path: '/special-employee/notifications' },
@@ -55,6 +78,8 @@ export default function DashboardLayout({ children }) {
 
   const employeeMenuItems = [
     { labelKey: 'myTasks', icon: <ClipboardList className="w-5 h-5" />, path: '/employee/dashboard' },
+    { labelKey: 'Digital ID', icon: <IdCard className="w-5 h-5" />, path: '/employee/digital-id' },
+    { labelKey: 'profile', icon: <Users className="w-5 h-5" />, path: '/employee/profile' },
     { labelKey: 'notifications', icon: <Bell className="w-5 h-5" />, path: '/employee/notifications' },
   ];
 
@@ -63,6 +88,7 @@ export default function DashboardLayout({ children }) {
     { labelKey: 'myRequests', icon: <ClipboardList className="w-5 h-5" />, path: '/resident/requests' },
     { labelKey: 'digitalId', icon: <IdCard className="w-5 h-5" />, path: '/resident/digital-id' },
     { labelKey: 'profile', icon: <Users className="w-5 h-5" />, path: '/resident/profile' },
+    { labelKey: 'notifications', icon: <Bell className="w-5 h-5" />, path: '/resident/notifications' },
   ];
 
   const getMenuItems = () => {
@@ -133,7 +159,9 @@ export default function DashboardLayout({ children }) {
               {/* Bell */}
               <button className="relative p-2 hover:bg-gray-100 rounded-lg" onClick={() => navigate(`/${user?.role}/notifications`)}>
                 <Bell className="w-6 h-6 text-gray-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                {bellCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                )}
               </button>
 
               {/* User Info */}

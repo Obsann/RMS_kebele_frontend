@@ -12,6 +12,8 @@ const {
 const authMiddleware = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 const staffAuth = require('../middleware/staffAuth');
+const { suspiciousActivityMiddleware } = require('../middleware/suspiciousActivity');
+const upload = require('../utils/uploadMiddleware');
 
 const router = express.Router();
 
@@ -27,14 +29,14 @@ router.get('/role/:role', staffAuth, getUsersByRole);
 // Get user by ID - users can get their own, admins can get any
 router.get('/:id', getUserById);
 
-// Create user - admin and special-employee
-router.post('/', staffAuth, createUser);
+// Create user - admin and special-employee (triggers suspicious activity alert for sp.employees)
+router.post('/', staffAuth, suspiciousActivityMiddleware, createUser);
 
 // Update user - users can update their own, admins can update any
-router.put('/:id', updateUser);
+router.put('/:id', upload.single('photo'), updateUser);
 
-// Delete user - admin only
-router.delete('/:id', adminAuth, deleteUser);
+// Delete user - admin only (triggers suspicious activity alert for sp.employees)
+router.delete('/:id', adminAuth, suspiciousActivityMiddleware, deleteUser);
 
 // Dependent management
 router.post('/:id/dependents', addDependent);

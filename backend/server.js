@@ -105,11 +105,15 @@ app.use('/api/notifications', autoAudit, notificationRoute);
 app.use('/api/households', autoAudit, householdRoute);
 app.use('/api/reports', reportRoute);
 
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), uptime: process.uptime() });
 });
 
 app.get('/', (req, res) => res.json({ message: 'RMS Kebele API is running', version: '1.0.0' }));
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Error Handlers
 app.use((req, res) => {

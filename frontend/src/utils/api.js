@@ -145,7 +145,7 @@ export function updateJob(id, data) {
 }
 
 export const updateJobStatus = async (id, status, notes) => {
-    return api(`/jobs/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, notes }) });
+    return api(`/jobs/${id}`, { method: 'PUT', body: JSON.stringify({ status, completionNotes: notes }) });
 };
 
 // ── Notifications ───────────────────────────────────────────────────────────
@@ -190,6 +190,10 @@ export function approveDigitalId(id) {
 
 export function revokeDigitalId(id, reason) {
     return api(`/digital-id/${id}/revoke`, { method: 'POST', body: JSON.stringify({ reason }) });
+}
+
+export function updateDigitalId(id, data) {
+    return api(`/digital-id/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 }
 
 // ── Households ──────────────────────────────────────────────────────────────

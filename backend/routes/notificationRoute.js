@@ -17,11 +17,11 @@ router.use(authMiddleware);
 // Get own notifications
 router.get('/', getUserNotifications);
 
+// Mark all as read (must be BEFORE /:id/read to prevent path collision)
+router.patch('/read-all', markAllRead);
+
 // Mark single notification as read
 router.patch('/:id/read', markAsRead);
-
-// Mark all as read
-router.patch('/read-all', markAllRead);
 
 // Delete a notification
 router.delete('/:id', deleteNotification);

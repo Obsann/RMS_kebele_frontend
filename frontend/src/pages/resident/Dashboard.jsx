@@ -1,11 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
 import { Wrench, MessageSquare, IdCard, User, FileText, Users, Home } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
+import { getMeAPI, getRequests, getMyDigitalId } from '../../utils/api';
 
 export default function ResidentDashboard() {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [digitalId, setDigitalId] = useState(null);
+  const [myRequests, setMyRequests] = useState([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [meRes, reqRes] = await Promise.all([
+          getMeAPI(),
+          getRequests('?sort=-createdAt&limit=5')
+        ]);
+        setUserData(meRes.user || meRes);
+        setMyRequests(reqRes.requests || reqRes.data || reqRes);
+      } catch (err) {
+        console.error('Failed to load dashboard data:', err);
+      }
+      try {
+        const did = await getMyDigitalId();
+        setDigitalId(did);
+      } catch (err) {
+        // 404 is fine if no DID exists
+        setDigitalId(null);
+      }
+    }
+    loadData();
+  }, []);
 
   const quickActions = [
     { label: 'Submit Request', icon: <Wrench className="w-6 h-6" />, path: '/resident/requests', color: 'bg-blue-500' },
@@ -14,11 +41,7 @@ export default function ResidentDashboard() {
     { label: 'Manage Profile', icon: <User className="w-6 h-6" />, path: '/resident/profile', color: 'bg-green-500' },
   ];
 
-  const myRequests = [
-    { id: 1, type: 'request', subject: 'No water supply since morning', status: 'in-progress', date: '2026-02-28' },
-    { id: 2, type: 'request', subject: 'Streetlight outage near Block A', status: 'pending', date: '2026-02-27' },
-    { id: 3, type: 'complaint', subject: 'Garbage not collected for 3 days', status: 'pending', date: '2026-02-26' },
-  ];
+
 
   const announcements = [
     { id: 1, title: 'Water Supply Interruption', date: '2026-02-26', content: 'Water supply will be interrupted on Feb 28 from 8AM–12PM for maintenance.' },
@@ -36,19 +59,19 @@ export default function ResidentDashboard() {
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
               <p className="text-blue-200">Unit</p>
-              <p className="text-white">A-101</p>
+              <p className="text-white">{userData?.unit || 'N/A'}</p>
             </div>
             <div>
               <p className="text-blue-200">Active Requests</p>
-              <p className="text-white">{myRequests.filter((r) => r.status !== 'completed').length}</p>
+              <p className="text-white">{myRequests.filter((r) => r.status && r.status !== 'completed').length}</p>
             </div>
             <div>
               <p className="text-blue-200">Dependents</p>
-              <p className="text-white">2</p>
+              <p className="text-white">{userData?.dependents?.length || 0}</p>
             </div>
             <div>
               <p className="text-blue-200">ID Status</p>
-              <p className="text-white">Verified</p>
+              <p className="text-white capitalize">{digitalId?.status || 'Not Set'}</p>
             </div>
           </div>
         </div>
@@ -86,16 +109,16 @@ export default function ResidentDashboard() {
               </button>
             </div>
             <div className="divide-y divide-gray-200">
-              {myRequests.map((request) => (
-                <div key={request.id} className="p-6 hover:bg-gray-50">
+              {myRequests.map((request, i) => (
+                <div key={request._id || i} className="p-6 hover:bg-gray-50">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <p className="text-gray-900 mb-1">{request.subject}</p>
-                      <p className="text-gray-600 capitalize">{request.type}</p>
+                      <p className="text-gray-900 mb-1">{request.subject || request.title || 'Support Request'}</p>
+                      <p className="text-gray-600 capitalize">{request.type === 'maintenance' ? 'request' : request.type}</p>
                     </div>
                     <StatusBadge status={request.status} size="sm" />
                   </div>
-                  <p className="text-gray-500">{request.date}</p>
+                  <p className="text-gray-500">{new Date(request.createdAt).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>
@@ -131,10 +154,8 @@ export default function ResidentDashboard() {
               <h3>Unit Information</h3>
             </div>
             <div className="space-y-2 text-gray-600">
-              <p>Unit: A-101</p>
-              <p>Type: 2 Bedroom Apartment</p>
-              <p>Floor: 1st Floor</p>
-              <p>Move-in Date: January 15, 2024</p>
+              <p>Unit: {userData?.unit || 'N/A'}</p>
+              <p>Joined Date: {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Unknown'}</p>
             </div>
           </div>
 
@@ -144,14 +165,16 @@ export default function ResidentDashboard() {
               <h3>Family Members</h3>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-900">Liya Tadesse</span>
-                <span className="text-gray-600">Daughter, 8</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-900">Nahom Tadesse</span>
-                <span className="text-gray-600">Son, 5</span>
-              </div>
+              {userData?.dependents?.length > 0 ? (
+                userData.dependents.map((dep, idx) => (
+                  <div key={idx} className="flex items-center justify-between border-b pb-2 last:border-0">
+                    <span className="text-gray-900">{dep.name}</span>
+                    <span className="text-gray-600 capitalize">{dep.relationship}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No family members registered.</p>
+              )}
               <button
                 onClick={() => navigate('/resident/profile')}
                 className="text-blue-600 hover:text-blue-700 mt-2"

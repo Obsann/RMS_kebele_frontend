@@ -11,7 +11,12 @@ const getAllUsers = async (req, res) => {
 
     // Build query
     const query = {};
-    if (role) query.role = role;
+    if (role) {
+      query.role = role;
+    } else {
+      // By default, exclude admins from general user listings
+      query.role = { $ne: 'admin' };
+    }
     if (status) query.status = status;
     if (search) {
       query.$or = [
@@ -72,7 +77,7 @@ const createUser = async (req, res) => {
       email: email.toLowerCase(),
       password,
       role: role || 'resident',
-      status: status || 'active',
+      status: status || 'approved',
       unit,
       phone,
       jobCategory,
@@ -108,7 +113,7 @@ const getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "Not Found", message: "User not found" });
     }
-    res.status(200).json(user);
+    res.status(200).json({ user });
   } catch (error) {
     logger.error("GetUserById error:", error);
     res.status(500).json({ error: "Server error", message: error.message });
@@ -131,30 +136,47 @@ const updateUser = async (req, res) => {
     }
 
     // Whitelist allowed fields based on role
-    const userAllowedFields = ['username', 'phone', 'unit', 'emergencyContact', 'address'];
+    const userAllowedFields = ['username', 'phone', 'unit', 'address', 'profilePhoto', 'dateOfBirth', 'sex', 'nationality', 'emergencyContact'];
     const adminAllowedFields = [...userAllowedFields, 'role', 'status', 'jobCategory', 'permissions'];
 
     const allowedFields = req.user.role === 'admin' ? adminAllowedFields : userAllowedFields;
 
     // Filter updates to only allowed fields
-    const updates = {};
+    const rawUpdates = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
+        rawUpdates[field] = req.body[field];
       }
     }
 
     // Prevent users from changing their own role or status
     if (req.user.role !== 'admin' && req.user.id === id) {
-      delete updates.role;
-      delete updates.status;
+      delete rawUpdates.role;
+      delete rawUpdates.status;
     }
 
-    if (Object.keys(updates).length === 0) {
+    if (req.file) {
+      rawUpdates.profilePhoto = `/uploads/${req.file.filename}`;
+    }
+
+    if (Object.keys(rawUpdates).length === 0) {
       return res.status(400).json({
         error: "Bad Request",
         message: "No valid fields to update"
       });
+    }
+
+    // Expand emergencyContact subdocument into dot-notation to avoid
+    // Mongoose runValidators rejection when replacing a whole subdoc via findByIdAndUpdate
+    const updates = {};
+    for (const [key, val] of Object.entries(rawUpdates)) {
+      if (key === 'emergencyContact' && val && typeof val === 'object') {
+        if (val.phone !== undefined) updates['emergencyContact.phone'] = val.phone;
+        if (val.name !== undefined) updates['emergencyContact.name'] = val.name;
+        if (val.relationship !== undefined) updates['emergencyContact.relationship'] = val.relationship;
+      } else {
+        updates[key] = val;
+      }
     }
 
     const user = await User.findByIdAndUpdate(

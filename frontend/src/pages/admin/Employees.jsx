@@ -52,7 +52,7 @@ export default function AdminEmployees() {
         password: formData.password,
         phone: formData.phone,
         role: 'employee',
-        status: 'active',
+        status: 'approved',
         jobCategory: formData.category,
       });
       toast.success('Employee added successfully!');
@@ -128,7 +128,7 @@ export default function AdminEmployees() {
           </div>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <p className="text-gray-600 mb-1">Active</p>
-            <p className="text-green-600 text-2xl font-semibold">{employees.filter(e => e.status === 'active').length}</p>
+            <p className="text-green-600 text-2xl font-semibold">{employees.filter(e => e.status === 'approved').length}</p>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <p className="text-gray-600 mb-1">Categories</p>
@@ -289,9 +289,9 @@ export default function AdminEmployees() {
           </div>
           <div>
             <label className="block text-gray-700 mb-2">Status</label>
-            <select value={editData.status || 'active'} onChange={(e) => setEditData({ ...editData, status: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+            <select value={editData.status || 'approved'} onChange={(e) => setEditData({ ...editData, status: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="approved">Approved (Active)</option>
+              <option value="rejected">Rejected (Inactive)</option>
             </select>
           </div>
           <div className="flex gap-3 pt-4">

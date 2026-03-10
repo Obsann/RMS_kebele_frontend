@@ -38,19 +38,47 @@ const generateDigitalId = async (req, res) => {
         // Generate QR code
         const qrCode = DigitalId.generateQRCode(targetUserId, user.unit);
 
-        // Create digital ID
+        // Build demographic updates object
+        const demographicUpdates = {};
+        if (req.body.name) demographicUpdates.name = req.body.name;
+        if (req.body.dateOfBirth) demographicUpdates.dateOfBirth = req.body.dateOfBirth;
+        if (req.body.sex) demographicUpdates.sex = req.body.sex;
+        if (req.body.nationality) demographicUpdates.nationality = req.body.nationality;
+        if (req.body.address) demographicUpdates.address = req.body.address;
+        if (req.body.phone) demographicUpdates.phone = req.body.phone;
+
+        if (req.files) {
+            if (req.files.photo && req.files.photo[0]) {
+                demographicUpdates.profilePhoto = `/uploads/${req.files.photo[0].filename}`;
+            }
+            if (req.files.birthCertificate && req.files.birthCertificate[0]) {
+                demographicUpdates.birthCertificate = `/uploads/${req.files.birthCertificate[0].filename}`;
+            }
+        }
+
+        // Use findByIdAndUpdate to persist demographics WITHOUT triggering
+        // the password pre-save hook (which would re-hash an already-hashed password)
+        if (Object.keys(demographicUpdates).length > 0) {
+            await User.findByIdAndUpdate(
+                targetUserId,
+                { $set: demographicUpdates },
+                { runValidators: false }
+            );
+        }
+
+        // Create the digital ID record
         digitalId = await DigitalId.create({
             user: targetUserId,
             qrCode,
             status: 'pending'
         });
 
-        // Update user with digital ID reference
-        user.digitalId = {
-            qrCode,
-            status: 'pending'
-        };
-        await user.save();
+        // Update only the digitalId sub-doc on the user (safe — no password changes)
+        await User.findByIdAndUpdate(
+            targetUserId,
+            { $set: { 'digitalId.qrCode': qrCode, 'digitalId.status': 'pending' } },
+            { runValidators: false }
+        );
 
         res.status(201).json({
             message: 'Digital ID generated',
@@ -76,7 +104,7 @@ const getAllDigitalIds = async (req, res) => {
 
         const [digitalIds, total] = await Promise.all([
             DigitalId.find(query)
-                .populate('user', 'username email unit phone')
+                .populate('user', 'username email unit phone profilePhoto birthCertificate dateOfBirth sex nationality address')
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(parseInt(limit)),
@@ -290,6 +318,85 @@ const getDigitalIdStats = async (req, res) => {
     }
 };
 
+/**
+ * Update Digital ID (admin/special-employee)
+ * Allows assigning to employee or marking as issued.
+ */
+const updateDigitalId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, assignedTo, issueDate } = req.body;
+
+        const digitalId = await DigitalId.findById(id).populate('user');
+        if (!digitalId) {
+            return res.status(404).json({ error: 'Not Found', message: 'Digital ID not found' });
+        }
+
+        const updates = {};
+        if (status) updates.status = status;
+        if (assignedTo) updates.assignedTo = assignedTo;
+        if (issueDate) updates.issueDate = issueDate;
+
+        // If marking as issued, safely generate an ID number
+        if (status === 'issued' && !digitalId.idNumber) {
+            const unit = digitalId.user?.unit || 'GEN';
+            const rnd = Math.floor(1000 + Math.random() * 9000);
+            updates.idNumber = `RES-${new Date().getFullYear()}-${unit}-${rnd}`;
+            updates.issuedAt = new Date();
+
+            // Sync status to user doc
+            await User.findByIdAndUpdate(digitalId.user._id, {
+                'digitalId.status': 'issued'
+            });
+        } else if (status === 'approved' && assignedTo) {
+            updates.status = 'processing';
+        }
+
+        const updated = await DigitalId.findByIdAndUpdate(
+            id,
+            { $set: updates },
+            { new: true }
+        ).populate('user', 'username email unit phone profilePhoto');
+
+        res.json({ message: 'Digital ID updated', digitalId: updated });
+    } catch (error) {
+        logger.error('UpdateDigitalId error:', error);
+        res.status(500).json({ error: 'Server Error', message: error.message });
+    }
+};
+
+/**
+ * Update Digital ID status (e.g. Employee verifying)
+ */
+const updateDigitalIdStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const digitalId = await DigitalId.findById(id).populate('user');
+        if (!digitalId) {
+            return res.status(404).json({ error: 'Not Found', message: 'Digital ID not found' });
+        }
+
+        if (status === 'verified') {
+            digitalId.verifications.push({
+                verifiedBy: req.user.id,
+                verifiedAt: new Date(),
+                method: 'manual'
+            });
+            digitalId.lastVerified = new Date();
+        }
+
+        digitalId.status = status;
+        await digitalId.save();
+
+        res.json({ message: 'Digital ID status updated', digitalId });
+    } catch (error) {
+        logger.error('UpdateDigitalIdStatus error:', error);
+        res.status(500).json({ error: 'Server Error', message: error.message });
+    }
+};
+
 module.exports = {
     generateDigitalId,
     getAllDigitalIds,
@@ -297,5 +404,7 @@ module.exports = {
     approveDigitalId,
     revokeDigitalId,
     verifyDigitalId,
-    getDigitalIdStats
+    getDigitalIdStats,
+    updateDigitalId,
+    updateDigitalIdStatus
 };

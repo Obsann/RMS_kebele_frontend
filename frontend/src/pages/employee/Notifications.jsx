@@ -1,190 +1,146 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import {
-  Bell,
-  Briefcase,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  MessageSquare,
-  Clock,
-  X,
-  Check,
+  Bell, Briefcase, CheckCircle, AlertTriangle, Info,
+  MessageSquare, Clock, X, Check, Shield, User, Loader2
 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
+import {
+  getNotifications, markNotificationRead, markAllNotificationsRead, dismissNotification
+} from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
 
-const NOTIFICATION_TYPES = {
-  task_assigned: {
-    icon: Briefcase, 
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    label: 'Task Assigned',
-  },
-  task_completed: {
-    icon: CheckCircle,
-    color: 'text-green-600',
-    bg: 'bg-green-50',
-    border: 'border-green-200',
-    label: 'Task Completed',
-  },
-  urgent: {
-    icon: AlertTriangle,
-    color: 'text-red-600',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    label: 'Urgent',
-  },
-  message: {
-    icon: MessageSquare,
-    color: 'text-purple-600',
-    bg: 'bg-purple-50',
-    border: 'border-purple-200',
-    label: 'Message',
-  },
-  info: {
-    icon: Info,
-    color: 'text-yellow-600',
-    bg: 'bg-yellow-50',
-    border: 'border-yellow-200',
-    label: 'Info',
-  },
+// Notification type styles
+const TYPE_CONFIG = {
+  task_assigned: { icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', label: 'Task Assigned' },
+  task_completed: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', label: 'Task Verified' },
+  urgent: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', label: 'Urgent' },
+  message: { icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200', label: 'Message' },
+  announcement: { icon: Bell, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', label: 'Announcement' },
+  info: { icon: Info, color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', label: 'Info' },
+  default: { icon: Bell, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', label: 'Notification' },
 };
 
-const initialNotifications = [
-  {
-    id: 1,
-    type: 'urgent',
-    title: 'Urgent: Sewage overflow near Block A gate',
-    body: 'A sewage overflow has been reported near the Block A entrance. This requires immediate attention. Please report to the location as soon as possible.',
-    time: '10 minutes ago',
-    read: false,
-    date: '2026-02-26',
-  },
-  {
-    id: 2,
-    type: 'task_assigned',
-    title: 'New task assigned: Repair streetlights – Block B',
-    body: 'You have been assigned a new community maintenance task – repair the broken streetlights on Block B road. Due date: 2026-02-28.',
-    time: '1 hour ago',
-    read: false,
-    date: '2026-02-26',
-  },
-  {
-    id: 3,
-    type: 'message',
-    title: 'Message from Supervisor Temesgen Alemu',
-    body: 'Please make sure to update task statuses by end of shift today. The monthly report will be generated tomorrow morning.',
-    time: '3 hours ago',
-    read: false,
-    date: '2026-02-26',
-  },
-  {
-    id: 4,
-    type: 'task_assigned',
-    title: 'New task assigned: Fix water main valve – Block A',
-    body: 'Task has been assigned to you. Location: Block A water main. Category: Water Supply. Priority: High. Due: 2026-02-27.',
-    time: 'Yesterday, 4:30 PM',
-    read: true,
-    date: '2026-02-25',
-  },
-  {
-    id: 5,
-    type: 'task_completed',
-    title: 'Task verified: Drainage repair – Block C',
-    body: 'Your completed task "Fix drainage issue – Block C entrance" has been reviewed and verified by admin. Great work!',
-    time: 'Yesterday, 11:00 AM',
-    read: true,
-    date: '2026-02-25',
-  },
-  {
-    id: 6,
-    type: 'info',
-    title: 'Schedule reminder: Road inspection round',
-    body: 'Your monthly road and infrastructure inspection round is scheduled for this Friday, 2026-02-28. Blocks B and C are on the list.',
-    time: '2 days ago',
-    read: true,
-    date: '2026-02-24',
-  },
-  {
-    id: 7,
-    type: 'message',
-    title: 'Resident feedback received',
-    body: 'Resident Mulugeta Haile (Block C) has left positive feedback for your work on the sanitation cleanup. "Very professional and prompt service."',
-    time: '2 days ago',
-    read: true,
-    date: '2026-02-24',
-  },
-  {
-    id: 8,
-    type: 'info',
-    title: 'Team meeting — Monday 9:00 AM',
-    body: 'There will be a mandatory team briefing on Monday, 2026-03-02 at 9:00 AM in the maintenance office. Please attend on time.',
-    time: '3 days ago',
-    read: true,
-    date: '2026-02-23',
-  },
-  {
-    id: 9,
-    type: 'task_completed',
-    title: 'Task verified: Community notice board – Block B',
-    body: 'Task "Replace community notice board – Block B" has been marked as verified by Samuel Tolasa. Thank you for completing it on time.',
-    time: '4 days ago',
-    read: true,
-    date: '2026-02-22',
-  },
-];
+// Determine source label from notification metadata
+function getSourceTag(n) {
+  if (n.senderRole === 'admin') return { label: 'Admin', color: 'bg-red-50 text-red-700 border border-red-200' };
+  if (n.senderRole === 'special-employee') return { label: 'Supervisor', color: 'bg-purple-50 text-purple-700 border border-purple-200' };
+  if (n.type === 'urgent') return { label: 'Admin', color: 'bg-red-50 text-red-700 border border-red-200' };
+  if (n.type === 'task_assigned') return { label: 'Admin / Supervisor', color: 'bg-blue-50 text-blue-700 border border-blue-200' };
+  return null;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 60000);
+  if (diff < 1) return 'Just now';
+  if (diff < 60) return `${diff}m ago`;
+  if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+  return d.toLocaleDateString();
+}
+
+function groupByDate(arr) {
+  return arr.reduce((acc, n) => {
+    const d = new Date(n.createdAt);
+    const today = new Date();
+    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    let key;
+    if (d.toDateString() === today.toDateString()) key = 'Today';
+    else if (d.toDateString() === yesterday.toDateString()) key = 'Yesterday';
+    else key = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(n);
+    return acc;
+  }, {});
+}
 
 export default function EmployeeNotifications() {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  useEffect(() => {
+    loadNotifications();
+  }, []);
 
-  const markAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const loadNotifications = async () => {
+    setLoading(true);
+    try {
+      const data = await getNotifications();
+      setNotifications(data.notifications || data || []);
+    } catch {
+      toast.error('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    toast.success('All notifications marked as read');
+  const unreadCount = notifications.filter(n => !(n.isRead ?? n.read ?? false)).length;
+
+  const handleMarkRead = async (id) => {
+    try {
+      await markNotificationRead(id);
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true, read: true } : n));
+    } catch { /* silent */ }
   };
 
-  const dismissNotification = (id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    toast.success('Notification dismissed');
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
+      toast.success('All notifications marked as read');
+    } catch { toast.error('Failed'); }
   };
 
-  const toggleExpand = (id) => {
-    setExpandedId((prev) => (prev === id ? null : id));
-    markAsRead(id);
+  const handleDismiss = async (id, e) => {
+    e?.stopPropagation();
+    try {
+      await dismissNotification(id);
+      setNotifications(prev => prev.filter(n => n._id !== id));
+      toast.success('Dismissed');
+    } catch { toast.error('Failed to dismiss'); }
+  };
+
+  const handleExpand = (id) => {
+    setExpandedId(prev => prev === id ? null : id);
+    const n = notifications.find(x => x._id === id);
+    if (n && !(n.isRead ?? n.read)) handleMarkRead(id);
   };
 
   const filters = [
     { key: 'all', label: 'All' },
     { key: 'unread', label: 'Unread' },
+    { key: 'admin', label: 'From Admin', isSource: true },
+    { key: 'supervisor', label: 'From Supervisor', isSource: true },
     { key: 'task_assigned', label: 'Tasks' },
     { key: 'urgent', label: 'Urgent' },
     { key: 'message', label: 'Messages' },
-    { key: 'info', label: 'Info' },
   ];
 
-  const filtered = notifications.filter((n) => {
+  const filterNotif = (n) => {
     if (activeFilter === 'all') return true;
-    if (activeFilter === 'unread') return !n.read;
+    if (activeFilter === 'unread') return !(n.isRead ?? n.read ?? false);
+    if (activeFilter === 'admin') return n.senderRole === 'admin' || n.type === 'urgent' || n.type === 'task_assigned';
+    if (activeFilter === 'supervisor') return n.senderRole === 'special-employee';
     return n.type === activeFilter;
-  });
+  };
 
-  // Group by date label
-  const groupedByDate = filtered.reduce((acc, n) => {
-    const key = n.date === '2026-02-26' ? 'Today' : n.date === '2026-02-25' ? 'Yesterday' : n.date;
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(n);
-    return acc;
-  }, {});
+  const filtered = notifications.filter(filterNotif);
+  const grouped = groupByDate(filtered);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -192,57 +148,53 @@ export default function EmployeeNotifications() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Bell className="w-7 h-7 text-blue-600" />
               Notifications
               {unreadCount > 0 && (
-                <span className="inline-flex items-center justify-center w-6 h-6 bg-red-500 text-white rounded-full text-sm">
+                <span className="inline-flex items-center justify-center w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold">
                   {unreadCount}
                 </span>
               )}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-500 mt-1 text-sm">
               {unreadCount > 0
                 ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
-                : 'All caught up! No unread notifications.'}
+                : '✅ All caught up! No unread notifications.'}
             </p>
           </div>
           {unreadCount > 0 && (
             <button
-              onClick={markAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={handleMarkAllRead}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
             >
-              <Check className="w-4 h-4" />
-              Mark all as read
+              <Check className="w-4 h-4" /> Mark all read
             </button>
           )}
         </div>
 
         {/* Filter Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 flex gap-2 flex-wrap">
-          {filters.map((f) => {
-            const count =
-              f.key === 'all'
-                ? notifications.length
-                : f.key === 'unread'
-                  ? notifications.filter((n) => !n.read).length
-                  : notifications.filter((n) => n.type === f.key).length;
+          {filters.map(f => {
+            let count = 0;
+            if (f.key === 'all') count = notifications.length;
+            else if (f.key === 'unread') count = notifications.filter(n => !(n.isRead ?? n.read)).length;
+            else if (f.key === 'admin') count = notifications.filter(n => n.senderRole === 'admin' || n.type === 'urgent' || n.type === 'task_assigned').length;
+            else if (f.key === 'supervisor') count = notifications.filter(n => n.senderRole === 'special-employee').length;
+            else count = notifications.filter(n => n.type === f.key).length;
 
             return (
               <button
                 key={f.key}
                 onClick={() => setActiveFilter(f.key)}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${activeFilter === f.key
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                className={`px-3 py-1.5 rounded-lg transition-colors text-sm font-medium flex items-center gap-1.5 ${activeFilter === f.key ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'
                   }`}
               >
+                {f.key === 'admin' && <Shield className="w-3.5 h-3.5" />}
+                {f.key === 'supervisor' && <User className="w-3.5 h-3.5" />}
                 {f.label}
                 {count > 0 && (
-                  <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full ${activeFilter === f.key ? 'bg-white text-blue-600' : 'bg-gray-100'
-                      }`}
-                  >
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeFilter === f.key ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
                     {count}
                   </span>
                 )}
@@ -251,116 +203,102 @@ export default function EmployeeNotifications() {
           })}
         </div>
 
-        {/* Notifications List */}
+        {/* Notifications */}
         {filtered.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-            <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No notifications in this category.</p>
+            <Bell className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+            <p className="text-gray-500 font-medium">No notifications in this category.</p>
           </div>
         ) : (
           <div className="space-y-6">
-            {Object.entries(groupedByDate).map(([dateLabel, items]) => (
+            {Object.entries(grouped).map(([dateLabel, items]) => (
               <div key={dateLabel}>
-                <p className="text-gray-500 mb-3 px-1">{dateLabel}</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">{dateLabel}</p>
                 <div className="space-y-3">
-                  {items.map((notif) => {
-                    const config = NOTIFICATION_TYPES[notif.type];
+                  {items.map(n => {
+                    const config = TYPE_CONFIG[n.type] || TYPE_CONFIG.default;
                     const Icon = config.icon;
-                    const isExpanded = expandedId === notif.id;
+                    const isRead = n.isRead ?? n.read ?? false;
+                    const isExpanded = expandedId === n._id;
+                    const sourceTag = getSourceTag(n);
 
                     return (
                       <div
-                        key={notif.id}
-                        className={`bg-white rounded-xl border transition-all duration-200 overflow-hidden ${!notif.read
-                            ? 'border-blue-300 shadow-md'
-                            : 'border-gray-200 shadow-sm'
+                        key={n._id}
+                        className={`bg-white rounded-xl border transition-all shadow-sm ${!isRead ? 'border-blue-300 shadow-blue-50' : 'border-gray-200'
                           }`}
                       >
                         <div
-                          className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={() => toggleExpand(notif.id)}
+                          className="p-4 cursor-pointer hover:bg-gray-50 transition-colors rounded-xl"
+                          onClick={() => handleExpand(n._id)}
                         >
-                          <div className="flex items-start gap-4">
-                            {/* Icon */}
-                            <div className={`p-2 rounded-lg flex-shrink-0 ${config.bg} ${config.border} border`}>
+                          <div className="flex items-start gap-3">
+                            <div className={`p-2 rounded-xl flex-shrink-0 ${config.bg} ${config.border} border`}>
                               <Icon className={`w-5 h-5 ${config.color}`} />
                             </div>
-
-                            {/* Content */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  {!notif.read && (
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1"></span>
-                                  )}
-                                  <p className={`${!notif.read ? 'text-gray-900' : 'text-gray-700'}`}>
-                                    {notif.title}
+                                <div className="flex items-center gap-2 flex-wrap min-w-0">
+                                  {!isRead && <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />}
+                                  <p className={`text-sm ${!isRead ? 'font-semibold text-gray-900' : 'text-gray-700'} leading-snug truncate`}>
+                                    {n.title}
                                   </p>
                                 </div>
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    dismissNotification(notif.id);
-                                  }}
+                                  onClick={(e) => handleDismiss(n._id, e)}
                                   className="p-1 hover:bg-gray-200 rounded-lg text-gray-400 hover:text-gray-600 flex-shrink-0"
                                   title="Dismiss"
                                 >
                                   <X className="w-4 h-4" />
                                 </button>
                               </div>
-                              <div className="flex items-center gap-3 mt-1">
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${config.bg} ${config.color}`}>
+                              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${config.bg} ${config.color}`}>
                                   {config.label}
                                 </span>
-                                <span className="flex items-center gap-1 text-gray-500">
-                                  <Clock className="w-3.5 h-3.5" />
-                                  {notif.time}
+                                {sourceTag && (
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sourceTag.color}`}>
+                                    {sourceTag.label}
+                                  </span>
+                                )}
+                                <span className="flex items-center gap-1 text-gray-400 text-xs">
+                                  <Clock className="w-3 h-3" /> {formatDate(n.createdAt)}
                                 </span>
                               </div>
-
-                              {/* Preview / Expanded Body */}
-                              {!isExpanded ? (
-                                <p className="text-gray-500 mt-2 line-clamp-1">{notif.body}</p>
-                              ) : (
-                                <p className="text-gray-700 mt-2 leading-relaxed">{notif.body}</p>
+                              {!isExpanded && (
+                                <p className="text-gray-400 text-xs mt-2 line-clamp-1">{n.message || n.body}</p>
                               )}
                             </div>
                           </div>
                         </div>
 
-                        {/* Expanded actions */}
                         {isExpanded && (
-                          <div className="px-4 pb-4 flex gap-3 border-t border-gray-100 pt-3 mt-0">
-                            {notif.type === 'task_assigned' && (
+                          <div className="px-4 pb-4 border-t border-gray-100">
+                            <p className="text-gray-700 text-sm leading-relaxed pt-3">{n.message || n.body}</p>
+                            <div className="flex flex-wrap gap-2 mt-4">
+                              {n.type === 'task_assigned' && (
+                                <button
+                                  onClick={() => navigate('/employee/dashboard')}
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                                >
+                                  View Task
+                                </button>
+                              )}
+                              {n.type === 'urgent' && (
+                                <button
+                                  onClick={() => navigate('/employee/dashboard')}
+                                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
+                                >
+                                  Acknowledge
+                                </button>
+                              )}
                               <button
-                                onClick={() => toast.success('Navigating to task details...')}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                onClick={(e) => handleDismiss(n._id, e)}
+                                className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 text-sm"
                               >
-                                View task
+                                Dismiss
                               </button>
-                            )}
-                            {notif.type === 'urgent' && (
-                              <button
-                                onClick={() => toast.success('Acknowledged! Heading to the unit.')}
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                              >
-                                Acknowledge &amp; Go
-                              </button>
-                            )}
-                            {notif.type === 'message' && (
-                              <button
-                                onClick={() => toast.success('Reply sent!')}
-                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                              >
-                                Reply
-                              </button>
-                            )}
-                            <button
-                              onClick={() => dismissNotification(notif.id)}
-                              className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50"
-                            >
-                              Dismiss
-                            </button>
+                            </div>
                           </div>
                         )}
                       </div>

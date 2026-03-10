@@ -4,12 +4,15 @@ const Request = require('../models/Request');
 const Job = require('../models/Job');
 const DigitalId = require('../models/DigitalId');
 const Household = require('../models/Household');
+const { checkLongPendingDigitalIds } = require('../middleware/suspiciousActivity');
 
 /**
  * Get overview dashboard statistics (admin only)
  */
 const getOverview = async (req, res) => {
     try {
+        // Fire stale digital ID check silently on each dashboard load
+        checkLongPendingDigitalIds(72).catch(() => { });
         const [
             totalUsers,
             pendingUsers,

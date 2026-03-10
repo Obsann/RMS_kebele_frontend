@@ -59,7 +59,7 @@ export default function AdminSpecialEmployees() {
       await createUser({
         ...formData,
         role: 'special-employee',
-        status: 'active'
+        status: 'approved'
       });
       toast.success('Special employee added successfully');
       setShowAddModal(false);

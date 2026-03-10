@@ -71,7 +71,8 @@ export default function AdminDigitalID() {
 
   const tabs = [
     { key: 'all', label: 'All' },
-    { key: 'pending', label: 'Pending' },
+    { key: 'verified', label: 'Verified To Approve' },
+    { key: 'pending', label: 'Pending Verification' },
     { key: 'approved', label: 'Approved' },
     { key: 'expired', label: 'Expired' },
     { key: 'revoked', label: 'Revoked' },
@@ -92,6 +93,8 @@ export default function AdminDigitalID() {
           <div className="flex flex-wrap items-center gap-3 text-sm">
             {[
               { icon: <IdCard className="w-4 h-4" />, label: 'Resident Requests ID', color: 'bg-gray-100 text-gray-700 border-gray-200' },
+              { icon: <ArrowRight className="w-4 h-4 text-blue-400" />, label: '', color: '' },
+              { icon: <UserCheck className="w-4 h-4" />, label: 'Employee Verifies Details', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
               { icon: <ArrowRight className="w-4 h-4 text-blue-400" />, label: '', color: '' },
               { icon: <CheckCircle className="w-4 h-4" />, label: 'Admin Inspects & Approves', color: 'bg-blue-100 text-blue-800 border-blue-200' },
               { icon: <ArrowRight className="w-4 h-4 text-blue-400" />, label: '', color: '' },
@@ -115,8 +118,8 @@ export default function AdminDigitalID() {
             <p className="text-gray-900 text-3xl font-bold">{requests.length}</p>
           </div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-yellow-200 bg-yellow-50">
-            <p className="text-yellow-700 mb-1 text-sm font-medium">Pending Approvals</p>
-            <p className="text-gray-900 text-3xl font-bold">{requests.filter(r => r.status === 'pending').length}</p>
+            <p className="text-yellow-700 mb-1 text-sm font-medium">Pending Final Approvals</p>
+            <p className="text-gray-900 text-3xl font-bold">{requests.filter(r => r.status === 'verified').length}</p>
           </div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-green-200 bg-green-50">
             <p className="text-green-700 mb-1 text-sm font-medium">Active (Approved)</p>
@@ -186,7 +189,7 @@ export default function AdminDigitalID() {
                           <button onClick={() => { setSelectedRequest(req); setShowDetailModal(true); }} className="p-2 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors" title="View Details">
                             <Eye className="w-4 h-4" />
                           </button>
-                          {req.status === 'pending' && (
+                          {req.status === 'verified' && (
                             <>
                               <button disabled={submitting} onClick={() => handleApprove(req)} className="p-2 hover:bg-green-100 rounded-lg text-green-600 transition-colors disabled:opacity-50 border border-transparent hover:border-green-200" title="Approve ID">
                                 <CheckCircle className="w-4 h-4" />
@@ -218,30 +221,66 @@ export default function AdminDigitalID() {
       <Modal isOpen={showDetailModal} onClose={() => setShowDetailModal(false)} title="Digital ID Application" size="md">
         {selectedRequest && (
           <div className="space-y-4">
-            <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
-                <span className="text-blue-600 text-2xl font-medium">{(selectedRequest.user?.username || 'U').charAt(0).toUpperCase()}</span>
+            <div className="flex items-start gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <div className="w-20 h-24 bg-blue-100 rounded-lg flex items-center justify-center shrink-0 border border-gray-300 overflow-hidden">
+                {selectedRequest.user?.profilePhoto ? (
+                  <img src={`http://localhost:5000${selectedRequest.user.profilePhoto}`} alt="Applicant" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-blue-600 text-3xl font-medium">{(selectedRequest.user?.username || 'U').charAt(0).toUpperCase()}</span>
+                )}
               </div>
               <div className="flex-1">
-                <h3 className="text-gray-900 text-lg font-bold capitalize">{selectedRequest.user?.username || 'Unknown'}</h3>
-                <p className="text-gray-600">{selectedRequest.user?.email || 'No email'}</p>
-                <div className="flex gap-2 mt-1">
-                  <span className="text-xs font-medium bg-gray-200 text-gray-700 px-2 py-0.5 rounded">Unit {selectedRequest.user?.unit || '—'}</span>
-                  {selectedRequest.user?.phone && <span className="text-xs font-medium bg-gray-200 text-gray-700 px-2 py-0.5 rounded">{selectedRequest.user.phone}</span>}
+                <h3 className="text-gray-900 text-xl font-bold capitalize">{selectedRequest.user?.username || 'Unknown Applicant'}</h3>
+                <p className="text-gray-600 mb-2">{selectedRequest.user?.email || 'No email provided'}</p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-1 rounded">Unit: {selectedRequest.user?.unit || '—'}</span>
+                  {selectedRequest.user?.phone && <span className="text-xs font-medium bg-gray-200 text-gray-800 px-2.5 py-1 rounded">Tel: {selectedRequest.user.phone}</span>}
+                  <span className="text-xs font-medium bg-gray-200 text-gray-800 px-2.5 py-1 rounded capitalize">Ref: {selectedRequest._id.slice(-6)}</span>
                 </div>
+              </div>
+              <div className="text-right">
+                <StatusBadge status={selectedRequest.status} />
+                <p className="text-xs text-gray-500 mt-2">Applied:<br />{new Date(selectedRequest.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 border border-gray-200 rounded-xl space-y-3">
-                <div><label className="block text-gray-500 text-xs uppercase tracking-wider mb-1">Request Date</label><p className="text-gray-900 font-medium">{new Date(selectedRequest.createdAt).toLocaleString()}</p></div>
-                <div><label className="block text-gray-500 text-xs uppercase tracking-wider mb-1">Status</label><StatusBadge status={selectedRequest.status} /></div>
+              <div className="p-4 border border-gray-200 rounded-xl space-y-4">
+                <h4 className="font-semibold text-gray-900 border-b pb-2">Demographics</h4>
+                <div className="grid grid-cols-2 gap-y-3 text-sm">
+                  <div><span className="block text-gray-500 text-xs">Nationality</span><span className="font-medium">{selectedRequest.user?.nationality || '—'}</span></div>
+                  <div><span className="block text-gray-500 text-xs">Sex</span><span className="font-medium">{selectedRequest.user?.sex || '—'}</span></div>
+                  <div><span className="block text-gray-500 text-xs">Date of Birth</span><span className="font-medium">{selectedRequest.user?.dateOfBirth ? new Date(selectedRequest.user.dateOfBirth).toLocaleDateString() : '—'}</span></div>
+                  <div className="col-span-2"><span className="block text-gray-500 text-xs">Address</span><span className="font-medium">{selectedRequest.user?.address || '—'}</span></div>
+                </div>
               </div>
-              <div className="p-4 border border-gray-200 rounded-xl space-y-3">
-                <div><label className="block text-gray-500 text-xs uppercase tracking-wider mb-1">ID Type</label><p className="text-gray-900 font-medium">Digital ID Mobile Pass</p></div>
-                <div><label className="block text-gray-500 text-xs uppercase tracking-wider mb-1">QR Code Source string</label><p className="text-gray-900 font-mono tracking-wide break-all text-xs border border-gray-200 bg-gray-50 p-2 rounded mt-1">{selectedRequest.qrCode}</p></div>
-                {selectedRequest.expiresAt && (
-                  <div><label className="block text-gray-500 text-xs uppercase tracking-wider mb-1">ID Expiration</label><p className="text-gray-900">{new Date(selectedRequest.expiresAt).toLocaleDateString()}</p></div>
+
+              <div className="p-4 border border-gray-200 rounded-xl flex flex-col">
+                <h4 className="font-semibold text-gray-900 border-b pb-2 mb-3">Supporting Documents</h4>
+                {selectedRequest.user?.birthCertificate ? (
+                  <a href={`http://localhost:5000${selectedRequest.user.birthCertificate}`} target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">📄</div>
+                      <div className="text-sm">
+                        <p className="font-medium text-gray-900">Birth Certificate</p>
+                        <p className="text-xs text-gray-500">Click to view document</p>
+                      </div>
+                    </div>
+                    <span className="text-blue-600 text-sm font-medium">View</span>
+                  </a>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-gray-400 text-sm bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                    No documents uploaded
+                  </div>
+                )}
+
+                {selectedRequest.status === 'approved' && (
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <span className="block text-gray-500 text-xs mb-1">ID Validity</span>
+                    <span className="text-sm font-medium bg-green-50 text-green-700 px-2 py-1 rounded border border-green-100 inline-block">
+                      Expires: {selectedRequest.expiresAt ? new Date(selectedRequest.expiresAt).toLocaleDateString() : 'N/A'}
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
@@ -254,16 +293,16 @@ export default function AdminDigitalID() {
             )}
 
             <div className="flex gap-3 pt-4 border-t border-gray-100">
-              {selectedRequest.status === 'pending' && (
+              {req.status === 'verified' && (
                 <>
-                  <button disabled={submitting} onClick={() => handleApprove(selectedRequest)} className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50">Approve ID</button>
-                  <button disabled={submitting} onClick={() => handleReject(selectedRequest)} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50">Reject</button>
+                  <button disabled={submitting} onClick={() => handleApprove(selectedRequest)} className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50 transition-colors">Approve ID Application</button>
+                  <button disabled={submitting} onClick={() => handleReject(selectedRequest)} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 transition-colors">Reject Application</button>
                 </>
               )}
               {selectedRequest.status === 'approved' && (
-                <button disabled={submitting} onClick={() => handleReject(selectedRequest)} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50">Revoke ID Access</button>
+                <button disabled={submitting} onClick={() => handleReject(selectedRequest)} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 transition-colors">Revoke Digital ID</button>
               )}
-              <button disabled={submitting} onClick={() => setShowDetailModal(false)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">Close</button>
+              <button disabled={submitting} onClick={() => setShowDetailModal(false)} className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors">Close</button>
             </div>
           </div>
         )}

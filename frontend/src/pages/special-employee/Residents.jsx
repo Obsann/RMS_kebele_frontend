@@ -28,7 +28,6 @@ export default function SpecialEmployeeResidents() {
       setResidents(data.users || []);
     } catch (error) {
       toast.error('Failed to load residents');
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -91,9 +90,9 @@ export default function SpecialEmployeeResidents() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200"><p className="text-gray-600 mb-1">Total</p><p className="text-gray-900 text-2xl font-semibold">{residents.length}</p></div>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-green-200 bg-green-50"><p className="text-green-700 mb-1">Active</p><p className="text-gray-900 text-2xl font-semibold">{residents.filter(r => r.status === 'active').length}</p></div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-green-200 bg-green-50"><p className="text-green-700 mb-1">Approved</p><p className="text-gray-900 text-2xl font-semibold">{residents.filter(r => r.status === 'approved').length}</p></div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-blue-200 bg-blue-50"><p className="text-blue-700 mb-1">Dependents</p><p className="text-gray-900 text-2xl font-semibold">{residents.reduce((acc, r) => acc + (r.dependents?.length || 0), 0)}</p></div>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-yellow-200 bg-yellow-50"><p className="text-yellow-700 mb-1">ID Pending</p><p className="text-gray-900 text-2xl font-semibold">{residents.filter(r => r.idStatus === 'pending').length}</p></div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-yellow-200 bg-yellow-50"><p className="text-yellow-700 mb-1">ID Pending</p><p className="text-gray-900 text-2xl font-semibold">{residents.filter(r => (r.digitalId?.status || '') === 'pending').length}</p></div>
         </div>
 
         {/* Filters */}
@@ -108,8 +107,8 @@ export default function SpecialEmployeeResidents() {
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
               <option value="pending">Pending</option>
             </select>
           </div>
@@ -135,11 +134,11 @@ export default function SpecialEmployeeResidents() {
                   <tr key={r._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                        <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                           <span className="text-blue-600">{(r.username || 'R').charAt(0).toUpperCase()}</span>
                         </div>
                         <div>
-                          <p className="text-gray-900">{r.username}</p>
+                          <p className="text-gray-900 font-medium">{r.username}</p>
                           <p className="text-gray-500 text-sm">{r.email}</p>
                         </div>
                       </div>
@@ -149,9 +148,9 @@ export default function SpecialEmployeeResidents() {
                     <td className="px-6 py-4 text-gray-700">{r.dependents?.length || 0}</td>
                     <td className="px-6 py-4"><StatusBadge status={r.status} size="sm" /></td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-sm ${idStatusColors[r.idStatus || 'none']}`}>
-                        <IdCard className="w-3.5 h-3.5" />
-                        {r.idStatus === 'verified' ? 'Verified' : r.idStatus === 'pending' ? 'Pending' : r.idStatus === 'in-progress' ? 'Processing' : 'None'}
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-sm ${idStatusColors[r.digitalId?.status || 'none']}`}>
+                        <IdCard className="w-4 h-4" />
+                        {r.digitalId?.status ? r.digitalId.status.charAt(0).toUpperCase() + r.digitalId.status.slice(1) : 'None'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -186,40 +185,42 @@ export default function SpecialEmployeeResidents() {
         {selectedResident && (
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                 <span className="text-blue-600 text-2xl">{(selectedResident.username || 'R').charAt(0).toUpperCase()}</span>
               </div>
               <div>
-                <h3 className="text-gray-900 text-lg">{selectedResident.username}</h3>
+                <h3 className="text-gray-900 text-lg font-semibold">{selectedResident.username}</h3>
                 <p className="text-gray-600">{selectedResident.email}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-              <div><label className="block text-gray-600 mb-1">Unit</label><p className="text-gray-900">{selectedResident.unit || '—'}</p></div>
-              <div><label className="block text-gray-600 mb-1">Phone</label><p className="text-gray-900">{selectedResident.phone || '—'}</p></div>
-              <div><label className="block text-gray-600 mb-1">Dependents</label><p className="text-gray-900">{selectedResident.dependents?.length || 0}</p></div>
-              <div><label className="block text-gray-600 mb-1">Status</label><StatusBadge status={selectedResident.status} size="sm" /></div>
-              <div className="col-span-2"><label className="block text-gray-600 mb-1">Digital ID Status</label>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-sm ${idStatusColors[selectedResident.idStatus || 'none']}`}>
-                  <IdCard className="w-3.5 h-3.5" />
-                  {selectedResident.idStatus === 'verified' ? 'Verified' : selectedResident.idStatus === 'pending' ? 'Pending' : selectedResident.idStatus === 'in-progress' ? 'Processing' : 'No ID'}
-                </span>
+            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg text-sm">
+              <div><label className="block text-gray-500 mb-1 text-xs">Unit</label><p className="text-gray-900 font-medium">{selectedResident.unit || '—'}</p></div>
+              <div><label className="block text-gray-500 mb-1 text-xs">Phone</label><p className="text-gray-900 font-medium">{selectedResident.phone || '—'}</p></div>
+              <div><label className="block text-gray-500 mb-1 text-xs">Dependents</label><p className="text-gray-900 font-medium">{selectedResident.dependents?.length || 0}</p></div>
+              <div><label className="block text-gray-500 mb-1 text-xs">Status</label><div className="mt-1"><StatusBadge status={selectedResident.status} size="sm" /></div></div>
+              <div className="col-span-2"><label className="block text-gray-500 mb-1 text-xs">Digital ID Status</label>
+                <div className="mt-1">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-sm font-medium ${idStatusColors[selectedResident.digitalId?.status || 'none']}`}>
+                    <IdCard className="w-4 h-4" />
+                    {selectedResident.digitalId?.status ? selectedResident.digitalId.status.charAt(0).toUpperCase() + selectedResident.digitalId.status.slice(1) : 'No ID'}
+                  </span>
+                </div>
               </div>
             </div>
             {selectedResident.dependents?.length > 0 && (
               <div className="mt-4">
-                <label className="block text-gray-600 mb-2">Family Members</label>
-                <div className="space-y-2">
+                <label className="block text-gray-600 font-semibold mb-2">Family Members</label>
+                <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                   {selectedResident.dependents.map((dep, idx) => (
-                    <div key={idx} className="p-3 bg-white border border-gray-200 rounded-lg text-sm flex justify-between">
+                    <div key={idx} className="p-3 bg-white border border-gray-200 rounded-lg text-sm flex justify-between items-center">
                       <span className="text-gray-900 font-medium">{dep.name}</span>
-                      <span className="text-gray-500">{dep.relationship} {dep.age ? `• ${dep.age} yrs` : ''}</span>
+                      <span className="text-gray-500 bg-gray-50 px-2 py-0.5 rounded">{dep.relationship} {dep.age ? `• ${dep.age} yrs` : ''}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-            <button onClick={() => setShowViewModal(false)} className="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg hover:bg-gray-50">Close</button>
+            <button onClick={() => setShowViewModal(false)} className="w-full px-4 py-2 mt-4 border border-gray-300 font-medium rounded-lg hover:bg-gray-50">Close</button>
           </div>
         )}
       </Modal>
@@ -227,19 +228,19 @@ export default function SpecialEmployeeResidents() {
       {/* Edit Modal */}
       <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Resident Information" size="md">
         <div className="space-y-4">
-          <div><label className="block text-gray-700 mb-2">Phone Number</label>
+          <div><label className="block text-gray-700 mb-2 font-medium text-sm">Phone Number</label>
             <input type="tel" value={editData.phone || ''} onChange={e => setEditData({ ...editData, phone: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" /></div>
-          <div><label className="block text-gray-700 mb-2">Status</label>
-            <select value={editData.status || 'active'} onChange={e => setEditData({ ...editData, status: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" /></div>
+          <div><label className="block text-gray-700 mb-2 font-medium text-sm">Status</label>
+            <select value={editData.status || 'approved'} onChange={e => setEditData({ ...editData, status: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
               <option value="pending">Pending</option>
             </select></div>
-          <div className="flex gap-3">
-            <button onClick={handleSaveEdit} disabled={submitting} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? 'Saving...' : 'Save Changes'}</button>
-            <button onClick={() => setShowEditModal(false)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <div className="flex gap-3 pt-2 border-t mt-4">
+            <button onClick={handleSaveEdit} disabled={submitting} className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? 'Saving...' : 'Save Changes'}</button>
+            <button onClick={() => setShowEditModal(false)} className="flex-1 px-4 py-2 border border-gray-300 font-medium rounded-lg hover:bg-gray-50">Cancel</button>
           </div>
         </div>
       </Modal>

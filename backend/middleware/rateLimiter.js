@@ -10,8 +10,9 @@ const rateLimit = new Map();
  * @param {number} windowMs - Time window in milliseconds
  * @param {number} maxRequests - Maximum requests allowed in window
  * @param {string} message - Error message to return
+ * @param {object} options - Additional options like countOnlyOnFail
  */
-const createRateLimiter = (windowMs = 15 * 60 * 1000, maxRequests = 5, message = 'Too many requests') => {
+const createRateLimiter = (windowMs = 15 * 60 * 1000, maxRequests = 20, message = 'Too many requests', options = {}) => {
     return (req, res, next) => {
         const key = req.ip || req.connection.remoteAddress || 'unknown';
         const now = Date.now();
@@ -20,15 +21,15 @@ const createRateLimiter = (windowMs = 15 * 60 * 1000, maxRequests = 5, message =
         const userRateData = rateLimit.get(key);
 
         if (!userRateData || now - userRateData.windowStart > windowMs) {
-            // New window
+            // New window — don't count yet if countOnlyOnFail
             rateLimit.set(key, {
                 windowStart: now,
-                count: 1
+                count: options.countOnlyOnFail ? 0 : 1
             });
-            return next();
+            if (!options.countOnlyOnFail) return next();
         }
 
-        if (userRateData.count >= maxRequests) {
+        if (userRateData && userRateData.count >= maxRequests) {
             const retryAfter = Math.ceil((userRateData.windowStart + windowMs - now) / 1000);
             res.set('Retry-After', retryAfter);
             return res.status(429).json({
@@ -38,22 +39,37 @@ const createRateLimiter = (windowMs = 15 * 60 * 1000, maxRequests = 5, message =
             });
         }
 
-        userRateData.count++;
-        rateLimit.set(key, userRateData);
+        if (!options.countOnlyOnFail) {
+            userRateData.count++;
+            rateLimit.set(key, userRateData);
+        } else {
+            // Only count the request AFTER we know it failed
+            res.on('finish', () => {
+                if (res.statusCode < 200 || res.statusCode >= 300) {
+                    const currentData = rateLimit.get(key);
+                    if (currentData) {
+                        currentData.count++;
+                        rateLimit.set(key, currentData);
+                    }
+                }
+            });
+        }
+
         next();
     };
 };
 
 // Pre-configured limiters for common use cases
 const authLimiter = createRateLimiter(
-    15 * 60 * 1000, // 15 minutes
-    5,               // 5 attempts
-    'Too many login attempts. Please try again later.'
+    5 * 60 * 1000,   // 5 minutes window
+    20,              // 20 failed attempts before lockout
+    'Too many failed login attempts. Please try again in 5 minutes.',
+    { countOnlyOnFail: true }
 );
 
 const registerLimiter = createRateLimiter(
     60 * 60 * 1000, // 1 hour
-    3,               // 3 registrations
+    10,              // 10 registration attempts per hour
     'Too many registration attempts. Please try again later.'
 );
 

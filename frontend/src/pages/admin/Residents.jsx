@@ -52,7 +52,7 @@ export default function AdminResidents() {
         phone: formData.phone,
         unit: formData.unit,
         role: 'resident',
-        status: 'active'
+        status: 'approved'
       });
       toast.success('Resident added successfully!');
       setShowAddModal(false);
@@ -92,9 +92,10 @@ export default function AdminResidents() {
   });
 
   const idStatusColors = {
-    verified: 'text-green-600 bg-green-50 border-green-200',
+    approved: 'text-green-600 bg-green-50 border-green-200',
     pending: 'text-yellow-600 bg-yellow-50 border-yellow-200',
-    'in-progress': 'text-blue-600 bg-blue-50 border-blue-200',
+    revoked: 'text-red-600 bg-red-50 border-red-200',
+    expired: 'text-gray-500 bg-gray-50 border-gray-200',
     none: 'text-gray-500 bg-gray-50 border-gray-200'
   };
 
@@ -124,7 +125,7 @@ export default function AdminResidents() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200"><p className="text-gray-600 mb-1">Total</p><p className="text-gray-900 text-2xl font-semibold">{residents.length}</p></div>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-green-200 bg-green-50"><p className="text-green-700 mb-1">Active</p><p className="text-gray-900 text-2xl font-semibold">{residents.filter(r => r.status === 'active').length}</p></div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-green-200 bg-green-50"><p className="text-green-700 mb-1">Approved</p><p className="text-gray-900 text-2xl font-semibold">{residents.filter(r => r.status === 'approved').length}</p></div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-orange-200 bg-orange-50"><p className="text-orange-700 mb-1">Pending Approval</p><p className="text-gray-900 text-2xl font-semibold">{residents.filter(r => r.status === 'pending').length}</p></div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-blue-200 bg-blue-50"><p className="text-blue-700 mb-1">Dependent Profiles</p><p className="text-gray-900 text-2xl font-semibold">{residents.reduce((acc, r) => acc + (r.dependents?.length || 0), 0)}</p></div>
         </div>
@@ -137,9 +138,9 @@ export default function AdminResidents() {
             </div>
             <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="all">All Status</option>
-              <option value="active">Active</option>
+              <option value="approved">Approved</option>
               <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
         </div>
@@ -177,9 +178,9 @@ export default function AdminResidents() {
                     <td className="px-6 py-4 text-gray-700">{r.dependents?.length || 0}</td>
                     <td className="px-6 py-4"><StatusBadge status={r.status} size="sm" /></td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-sm ${idStatusColors[r.idStatus || 'none']}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-sm capitalize ${idStatusColors[r.digitalId?.status || 'none']}`}>
                         <IdCard className="w-3.5 h-3.5" />
-                        {r.idStatus === 'verified' ? 'Verified' : r.idStatus === 'pending' ? 'Pending' : r.idStatus === 'in-progress' ? 'Processing' : 'None'}
+                        {r.digitalId?.status || 'None'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -259,10 +260,10 @@ export default function AdminResidents() {
             <div><label className="block text-gray-700 mb-2">Unit</label><input type="text" value={editData.unit || ''} onChange={e => setEditData({ ...editData, unit: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" /></div>
           </div>
           <div><label className="block text-gray-700 mb-2">Status</label>
-            <select value={editData.status || 'active'} onChange={e => setEditData({ ...editData, status: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="active">Active</option>
+            <select value={editData.status || 'approved'} onChange={e => setEditData({ ...editData, status: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="approved">Approved</option>
               <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
           <div className="flex gap-3 pt-4">

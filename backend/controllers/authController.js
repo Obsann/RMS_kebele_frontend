@@ -60,15 +60,12 @@ const register = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
-
     // All new registrations start as pending residents
     const user = await User.create({
       role,
       username,
       email: email.toLowerCase(),
-      password: hashedPassword,
+      password: password, // The pre-save hook in authmodel will hash this
       phone,
       unit,
       status: 'pending'
@@ -215,6 +212,12 @@ const checkUser = async (req, res) => {
         status: user.status,
         unit: user.unit,
         phone: user.phone,
+        dateOfBirth: user.dateOfBirth,
+        sex: user.sex,
+        nationality: user.nationality,
+        address: user.address,
+        profilePhoto: user.profilePhoto,
+        emergencyContact: user.emergencyContact,
         digitalId: user.digitalId,
         dependents: user.dependents
       }
@@ -301,7 +304,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-    user.password = await bcrypt.hash(newPassword, 12);
+    user.password = newPassword; // Setup for the pre-save hook
     await user.save();
 
     res.json({ message: "Password changed successfully" });
@@ -401,7 +404,7 @@ const resetPassword = async (req, res) => {
     }
 
     // Update password and clear reset token
-    user.password = await bcrypt.hash(newPassword, 12);
+    user.password = newPassword; // Setup for the pre-save hook
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();

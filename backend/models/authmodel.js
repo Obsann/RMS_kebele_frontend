@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ['pending', 'approved', 'rejected', 'active', 'inactive'],
+        values: ['pending', 'approved', 'rejected'],
         message: '{VALUE} is not a valid status'
       },
       default: 'pending'
@@ -50,6 +50,17 @@ const userSchema = new mongoose.Schema(
       trim: true
     },
     address: {
+      type: String,
+      trim: true
+    },
+    dateOfBirth: {
+      type: Date
+    },
+    sex: {
+      type: String,
+      enum: ['Male', 'Female', 'Other']
+    },
+    nationality: {
       type: String,
       trim: true
     },
@@ -64,6 +75,9 @@ const userSchema = new mongoose.Schema(
     }],
     // File references (profile photo, documents)
     profilePhoto: {
+      type: String
+    },
+    birthCertificate: {
       type: String
     },
     documents: [{
@@ -123,6 +137,18 @@ userSchema.index({ 'digitalId.qrCode': 1 });
 // Virtual to check if user is active
 userSchema.virtual('isActive').get(function () {
   return this.status === 'approved';
+});
+
+// Pre-save hook to hash password if it was modified
+const bcrypt = require('bcrypt');
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  try {
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
 
 // Ensure virtuals are included in JSON
