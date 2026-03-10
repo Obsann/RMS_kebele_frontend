@@ -293,7 +293,7 @@ export default function AdminDigitalID() {
             )}
 
             <div className="flex gap-3 pt-4 border-t border-gray-100">
-              {req.status === 'verified' && (
+              {selectedRequest.status === 'verified' && (
                 <>
                   <button disabled={submitting} onClick={() => handleApprove(selectedRequest)} className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50 transition-colors">Approve ID Application</button>
                   <button disabled={submitting} onClick={() => handleReject(selectedRequest)} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 transition-colors">Reject Application</button>
